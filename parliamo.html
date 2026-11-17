@@ -1,0 +1,1686 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Parliamo!">
+<style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}</style>
+</head>
+<body>
+<title>Parliamo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #fbf6ec; --card: #ffffff; --ink: #2b2420; --muted: #6b5f57; --line: #e6dccb;
+  --primary: #b8452c; --primary-ink: #ffffff; --primary-dark: #8f3320;
+  --green: #2f6b3c; --green-bg: #e3f1e2; --amber: #8a5a00; --amber-bg: #fdefd0;
+  --accent-bg: #f3ead6; --sel: #fbe4dc; --radius: 18px;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { font-size: 18px; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.45; }
+h1 { font-size: 1.6rem; margin: .2rem 0 .6rem; line-height: 1.2; }
+h2 { font-size: 1.2rem; margin: 1rem 0 .4rem; line-height: 1.25; }
+p { margin: .4rem 0; }
+small { color: var(--muted); font-size: .85rem; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid #1d5fa8; outline-offset: 2px; }
+
+.page { max-width: 34rem; margin: 0 auto; padding-block: 1rem 6.5rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.center { text-align: center; } .left { text-align: left; }
+.muted { color: var(--muted); } .lead { font-size: 1.15rem; }
+.label { font-size: .85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: .9rem 0 .3rem; }
+.row { display: flex; align-items: center; gap: .6rem; } .centerrow { justify-content: center; }
+.grow { flex: 1; min-width: 0; } .stack { display: grid; gap: .6rem; margin: .8rem 0; }
+.it { font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; } .xl { font-size: 1.9rem; margin: .2rem 0; }
+.logo { font-size: 4rem; margin-top: 1rem; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; margin: .9rem 0; }
+.card h2:first-child, .card .label:first-child { margin-top: 0; }
+.card.accent { background: var(--accent-bg); } .card.warn { background: var(--amber-bg); border-color: #e9cf95; }
+.card.tap { cursor: pointer; }
+details summary { cursor: pointer; font-weight: 600; padding: .5rem 0; min-height: 2.6rem; }
+
+.btn { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; min-height: 3.2rem; padding: .7rem 1rem; margin: .6rem 0; border-radius: 16px; border: 2px solid transparent; font-weight: 700; font-size: 1.05rem; text-align: center; }
+.btn.primary { background: var(--primary); color: var(--primary-ink); box-shadow: 0 4px 0 var(--primary-dark); }
+.btn.primary:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-dark); }
+.btn.ghost { background: var(--card); border-color: var(--line); }
+.btn.danger { background: transparent; color: #a12a1c; border-color: #e2b7b0; }
+.btn.huge { min-height: 4rem; font-size: 1.2rem; } .btn.big { min-height: 4.2rem; font-size: 1.3rem; justify-content: flex-start; }
+.btn.slim { width: auto; min-height: 2.8rem; margin: 0; padding: .4rem .9rem; }
+.btn:disabled { opacity: .45; box-shadow: none; }
+.row .btn { margin: 0; }
+.filebtn { position: relative; cursor: pointer; }
+.filebtn input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.back { background: none; border: 0; color: var(--primary); font-weight: 700; padding: .6rem .2rem; min-height: 2.8rem; }
+
+label { display: block; font-weight: 600; margin: .8rem 0 .3rem; }
+input[type=text], input[type=password], input[type=url], select, textarea { width: 100%; min-height: 3.2rem; padding: .7rem .9rem; border: 2px solid var(--line); border-radius: 14px; background: #fff; font-size: 1.1rem; }
+textarea { min-height: 8rem; }
+
+.top { display: flex; align-items: center; gap: .8rem; margin-bottom: .6rem; }
+.top h1 { margin: 0; } .hello { margin: 0; color: var(--muted); } .top > div { flex: 1; }
+.who { background: var(--card); border: 2px solid var(--line); border-radius: 50%; width: 3.4rem; height: 3.4rem; font-size: 1.7rem; }
+.av { font-size: 1.6rem; }
+.streak { background: var(--amber-bg); border-radius: 999px; padding: .5rem .9rem; font-weight: 800; font-size: 1.1rem; }
+.goal { display: flex; align-items: center; gap: 1rem; } .goal h2 { margin: 0; }
+.ring { --p: 0; width: 4.6rem; height: 4.6rem; flex: none; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(closest-side, var(--card) 72%, transparent 73%), conic-gradient(var(--green) calc(var(--p) * 1%), var(--line) 0); }
+
+.avatars { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .6rem; }
+.avatar { width: 3.2rem; height: 3.2rem; font-size: 1.6rem; border-radius: 50%; border: 3px solid var(--line); background: #fff; }
+.avatar.on { border-color: var(--primary); background: var(--sel); }
+
+.unit { display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem; margin: .5rem 0; min-height: 4.4rem; }
+.unit b, .unit small { display: block; } .uemoji { font-size: 2rem; } .chev { font-size: 1.6rem; color: var(--muted); }
+.bar { display: block; height: .45rem; background: var(--line); border-radius: 9px; margin-top: .35rem; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--green); }
+
+.words { display: grid; gap: .4rem; }
+.word { display: flex; align-items: center; gap: .5rem; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding-right: .7rem; }
+.wbtn { display: flex; align-items: center; gap: .7rem; background: none; border: 0; text-align: left; padding: .6rem .7rem; min-height: 3.4rem; }
+.wbtn b, .wbtn small { display: block; } .wemoji { font-size: 1.5rem; width: 2rem; text-align: center; }
+.tag { font-style: normal; font-size: .7rem; background: var(--amber-bg); color: var(--amber); border-radius: 6px; padding: .1rem .35rem; font-weight: 700; }
+.dots { display: flex; gap: .2rem; } .dots i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--line); } .dots i.on { background: var(--green); }
+.del { width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 0; background: #f6dcd6; color: #a12a1c; font-weight: 800; }
+.ex { padding: .4rem 0; border-top: 1px solid var(--line); margin-top: .4rem; }
+.conj { width: 100%; border-collapse: collapse; } .conj td { padding: .25rem .2rem; border-top: 1px solid var(--line); } .conj td:first-child { color: var(--muted); width: 40%; }
+
+.say { flex: none; width: 3rem; height: 3rem; border-radius: 50%; border: 0; background: var(--accent-bg); font-size: 1.3rem; }
+.say.sm { width: 2.6rem; height: 2.6rem; font-size: 1.05rem; }
+.say.giant { width: 6.5rem; height: 6.5rem; font-size: 3rem; background: var(--primary); box-shadow: 0 5px 0 var(--primary-dark); }
+
+.thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .8rem 0; }
+.thumb { position: relative; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb button { position: absolute; top: .2rem; right: .2rem; width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 0; background: rgba(0,0,0,.7); color: #fff; font-weight: 800; }
+
+.games { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: .8rem; }
+.game { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem .6rem; min-height: 8rem; display: flex; flex-direction: column; align-items: center; gap: .2rem; text-align: center; }
+.game span { font-size: 2.4rem; }
+
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .8rem 0; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .7rem .3rem; text-align: center; }
+.tile b { display: block; font-size: 1.25rem; } .tile small { display: block; line-height: 1.2; }
+.chart { display: flex; align-items: flex-end; gap: .4rem; height: 9rem; }
+.col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: .15rem; }
+.col i { width: 100%; min-height: 3px; background: #d9b9a6; border-radius: 6px 6px 0 0; } .col i.full { background: var(--green); }
+.col .val { font-size: .75rem; color: var(--muted); }
+.lvl { display: flex; gap: .3rem; } .lvl i { flex: 1; height: .8rem; border-radius: 6px; background: var(--line); } .lvl i.on { background: var(--primary); }
+.badges { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+.badge { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .7rem; text-align: center; opacity: .5; filter: grayscale(1); }
+.badge.on { opacity: 1; filter: none; background: var(--accent-bg); }
+.badge span { font-size: 2rem; display: block; } .badge b, .badge small { display: block; line-height: 1.25; }
+
+.seg { display: flex; gap: .3rem; flex-wrap: wrap; }
+.seg button { flex: 1; min-height: 3rem; padding: .4rem .5rem; border-radius: 12px; border: 2px solid var(--line); background: #fff; font-weight: 600; }
+.seg button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.status { font-weight: 700; color: var(--amber); } .status.ok { color: var(--green); }
+
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+.tabbar button { flex: 1; background: none; border: 0; padding: .5rem 0 .45rem; font-size: .72rem; font-weight: 600; color: var(--muted); display: flex; flex-direction: column; align-items: center; min-height: 3.6rem; }
+.tabbar span { font-size: 1.45rem; line-height: 1.2; filter: grayscale(.6); opacity: .75; }
+.tabbar .on { color: var(--primary); } .tabbar .on span { filter: none; opacity: 1; }
+
+/* Lerneinheit */
+.session { padding-bottom: 7rem; }
+.shead { display: flex; align-items: center; gap: .7rem; margin-bottom: 1rem; }
+.close { width: 2.8rem; height: 2.8rem; border-radius: 50%; border: 0; background: var(--accent-bg); font-size: 1.1rem; flex: none; }
+.pbar { flex: 1; height: .9rem; background: var(--line); border-radius: 9px; overflow: hidden; }
+.pbar i { display: block; height: 100%; background: var(--green); border-radius: 9px; transition: width .3s; }
+.task { font-weight: 700; color: var(--muted); margin: 0 0 .6rem; }
+.prompt { display: flex; align-items: center; gap: .7rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem; min-height: 5rem; }
+.prompt.col { flex-direction: column; text-align: center; } .prompt h2 { margin: 0; flex: 1; font-size: 1.3rem; } .prompt h2.xl { font-size: 1.8rem; }
+.pemoji { font-size: 2.6rem; }
+.opts { display: grid; gap: .6rem; }
+.opt { width: 100%; min-height: 3.6rem; padding: .6rem .9rem; border-radius: 16px; border: 2px solid var(--line); background: var(--card); font-size: 1.1rem; font-weight: 600; text-align: left; box-shadow: 0 3px 0 var(--line); color: var(--ink); }
+.opt.sel { border-color: var(--primary); background: var(--sel); box-shadow: 0 3px 0 var(--primary); }
+.opt.good { border-color: var(--green); background: var(--green-bg); box-shadow: none; opacity: 1; }
+.opt.bad { border-color: #c98a1a; background: var(--amber-bg); box-shadow: none; }
+.opt:disabled { opacity: .85; }
+.gap { display: inline-block; min-width: 4.5rem; border-bottom: 3px solid var(--primary); margin: 0 .25rem; text-align: center; color: var(--primary); font-weight: 700; }
+.gap.filled { color: var(--green); border-color: var(--green); }
+.answer { text-align: center; font-size: 1.35rem !important; font-family: Georgia, serif; }
+.accents { display: flex; gap: .4rem; margin-top: .6rem; }
+.accents button { flex: 1; min-height: 3rem; border-radius: 12px; border: 2px solid var(--line); background: #fff; font-size: 1.2rem; }
+.line { min-height: 4.4rem; border-bottom: 2px solid var(--line); border-top: 2px solid var(--line); padding: .6rem 0; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.bank { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.tok { min-height: 3rem; padding: .4rem .9rem; border-radius: 12px; border: 2px solid var(--line); background: var(--card); font-size: 1.15rem; font-family: Georgia, serif; box-shadow: 0 3px 0 var(--line); color: var(--ink); }
+.tok.used { opacity: .25; box-shadow: none; }
+.matchgrid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; } .matchgrid > div { display: grid; gap: .6rem; align-content: start; }
+.matchgrid .opt { font-size: 1rem; padding: .5rem .6rem; min-height: 3.8rem; }
+.flash { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.2rem 1rem; text-align: center; }
+.flash.left { text-align: left; } .femoji { font-size: 4.5rem; line-height: 1.1; } .de { font-size: 1.25rem; font-weight: 600; }
+.example { background: var(--accent-bg); border-radius: 14px; padding: .7rem; margin-top: 1rem; text-align: left; }
+.story { font-size: 1.25rem; line-height: 1.6; }
+.mic { width: 5.5rem; height: 5.5rem; border-radius: 50%; border: 0; background: var(--primary); font-size: 2.4rem; margin-top: .8rem; box-shadow: 0 5px 0 var(--primary-dark); }
+.mic.on { background: var(--green); box-shadow: 0 0 0 .6rem var(--green-bg); }
+.sfoot { position: fixed; left: 0; right: 0; bottom: 0; padding: .6rem 1rem calc(.6rem + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); }
+.sfoot .btn { max-width: 32rem; margin: 0 auto; }
+.feedback { position: fixed; left: 0; right: 0; bottom: 0; padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)); border-radius: 22px 22px 0 0; z-index: 6; box-shadow: 0 -6px 24px rgba(0,0,0,.12); max-height: 70vh; overflow: auto; }
+.feedback > * { max-width: 32rem; margin-left: auto; margin-right: auto; }
+.feedback h2 { margin-top: 0; }
+.feedback.ok { background: var(--green-bg); } .feedback.ok h2 { color: var(--green); }
+.feedback.no { background: var(--amber-bg); } .feedback.no h2 { color: var(--amber); }
+.feedback .row { margin-top: .7rem; }
+.aiexp { background: rgba(255,255,255,.7); border-radius: 12px; padding: .6rem; }
+
+.memory { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: 1rem 0; }
+.mcard { aspect-ratio: 1; border-radius: 14px; border: 2px solid var(--primary-dark); background: var(--primary); color: #fff; font-size: 1.6rem; font-weight: 700; padding: .2rem; overflow-wrap: anywhere; }
+.mcard.open { background: var(--card); color: var(--ink); border-color: var(--line); font-size: .95rem; }
+.mcard.open.mit { font-family: Georgia, serif; font-size: 1.05rem; background: var(--accent-bg); }
+.mcard.found { background: var(--green-bg); border-color: var(--green); }
+
+.summary .confetti { font-size: 1.6rem; letter-spacing: .3rem; overflow: hidden; white-space: nowrap; animation: drift 6s linear infinite alternate; }
+@keyframes drift { from { transform: translateX(-8%); } to { transform: translateX(8%); } }
+
+.toast { position: fixed; left: 1rem; right: 1rem; top: calc(1rem + env(safe-area-inset-top)); max-width: 30rem; margin: 0 auto; background: #2b2420; color: #fff; padding: .9rem 1rem; border-radius: 14px; z-index: 20; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+#busy, #confirm { position: fixed; inset: 0; background: rgba(43,36,32,.6); display: grid; place-items: center; z-index: 30; padding: 1.5rem; }
+.busy-box { background: var(--card); border-radius: 22px; padding: 1.6rem; text-align: center; max-width: 24rem; }
+.busy-box p:first-of-type { font-weight: 700; font-size: 1.15rem; }
+.spinner { width: 3.4rem; height: 3.4rem; margin: 0 auto 1rem; border-radius: 50%; border: .45rem solid var(--line); border-top-color: var(--primary); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner, .summary .confetti { animation-duration: 0s; animation-iteration-count: 1; } .pbar i { transition: none; } }
+
+.steps { padding-left: 1.3rem; margin: .4rem 0 .8rem; } .steps li { margin: .35rem 0; }
+#promptbox { font-size: .8rem; min-height: 6rem; }
+</style>
+<div id="app"></div>
+<script>
+(() => {
+'use strict';
+
+// ---- data.js ----
+// Fest eingebaute Grundlagen (A1). Damit funktioniert die App auch ohne KI und ohne eigene Fotos.
+
+const V = (it, de, emoji, ex_it, ex_de) => ({ it, de, emoji, ex_it, ex_de });
+
+const STARTER = [
+  {
+    id: 'b-saluti', builtin: true, emoji: '👋', title: 'Begrüßen und Höflichkeit',
+    summary: 'Die wichtigsten Wörter, um jemanden zu begrüßen, sich zu bedanken und höflich zu fragen.',
+    vocab: [
+      V('ciao', 'hallo / tschüss', '👋', 'Ciao, come stai?', 'Hallo, wie geht es dir?'),
+      V('buongiorno', 'guten Tag', '☀️', 'Buongiorno, signora Rossi!', 'Guten Tag, Frau Rossi!'),
+      V('buonasera', 'guten Abend', '🌆', 'Buonasera a tutti!', 'Guten Abend allerseits!'),
+      V('buonanotte', 'gute Nacht', '🌙', 'Buonanotte e sogni d\'oro!', 'Gute Nacht und träum süß!'),
+      V('grazie', 'danke', '🙏', 'Grazie mille per l\'aiuto!', 'Vielen Dank für die Hilfe!'),
+      V('prego', 'bitte (gern geschehen)', '😊', 'Prego, si accomodi!', 'Bitte, nehmen Sie Platz!'),
+      V('per favore', 'bitte (bei einer Bitte)', '🙂', 'Un caffè, per favore.', 'Einen Kaffee, bitte.'),
+      V('scusi', 'Entschuldigung', '🙇', 'Scusi, dov\'è la stazione?', 'Entschuldigung, wo ist der Bahnhof?'),
+      V('arrivederci', 'auf Wiedersehen', '🤝', 'Arrivederci e buona giornata!', 'Auf Wiedersehen und einen schönen Tag!'),
+    ],
+    grammar: [{
+      title: 'Du oder Sie?',
+      text: 'Im Italienischen sagt man zu Freunden und Familie „tu“ (du) und zu Fremden „Lei“ (Sie). „Ciao“ passt nur zum Du, „buongiorno“ und „arrivederci“ passen immer. „Scusa“ sagt man zu Freunden, „scusi“ zu Fremden.',
+      examples: [{ it: 'Come stai?', de: 'Wie geht es dir?' }, { it: 'Come sta?', de: 'Wie geht es Ihnen?' }],
+    }],
+    pool: [],
+  },
+  {
+    id: 'b-cibo', builtin: true, emoji: '🍝', title: 'Essen und Trinken',
+    summary: 'Wörter für das Café, den Markt und das Restaurant.',
+    vocab: [
+      V('il pane', 'das Brot', '🍞', 'Compro il pane ogni mattina.', 'Ich kaufe jeden Morgen Brot.'),
+      V('l\'acqua', 'das Wasser', '💧', 'Vorrei un bicchiere d\'acqua.', 'Ich hätte gern ein Glas Wasser.'),
+      V('il vino', 'der Wein', '🍷', 'Il vino rosso è molto buono.', 'Der Rotwein ist sehr gut.'),
+      V('il caffè', 'der Kaffee', '☕', 'Prendo un caffè al bar.', 'Ich nehme einen Kaffee in der Bar.'),
+      V('il formaggio', 'der Käse', '🧀', 'Mi piace il formaggio italiano.', 'Ich mag italienischen Käse.'),
+      V('la mela', 'der Apfel', '🍎', 'La mela è rossa.', 'Der Apfel ist rot.'),
+      V('il pesce', 'der Fisch', '🐟', 'Stasera mangiamo il pesce.', 'Heute Abend essen wir Fisch.'),
+      V('la carne', 'das Fleisch', '🥩', 'Non mangio la carne.', 'Ich esse kein Fleisch.'),
+      V('il gelato', 'das Eis', '🍨', 'Il gelato al limone è fresco.', 'Das Zitroneneis ist erfrischend.'),
+      V('la pasta', 'die Nudeln', '🍝', 'La pasta è pronta!', 'Die Nudeln sind fertig!'),
+      V('il latte', 'die Milch', '🥛', 'Bevo il latte a colazione.', 'Ich trinke Milch zum Frühstück.'),
+      V('la colazione', 'das Frühstück', '🥐', 'Facciamo colazione alle otto.', 'Wir frühstücken um acht Uhr.'),
+    ],
+    grammar: [{
+      title: 'Der bestimmte Artikel',
+      text: 'Männliche Wörter haben meistens „il“ (il pane), weibliche „la“ (la mela). Beginnt das Wort mit einem Vokal, wird der Artikel zu „l\'“ verkürzt (l\'acqua, l\'amico). Vor s + Konsonant oder z steht „lo“ (lo studente, lo zucchero).',
+      examples: [{ it: 'il vino, la pasta, l\'acqua, lo zucchero', de: 'der Wein, die Nudeln, das Wasser, der Zucker' }],
+    }],
+    pool: [],
+  },
+  {
+    id: 'b-famiglia', builtin: true, emoji: '👨‍👩‍👧', title: 'Familie und Freunde',
+    summary: 'Über die eigene Familie sprechen.',
+    vocab: [
+      V('la madre', 'die Mutter', '👩', 'Mia madre si chiama Anna.', 'Meine Mutter heißt Anna.'),
+      V('il padre', 'der Vater', '👨', 'Mio padre lavora in banca.', 'Mein Vater arbeitet in der Bank.'),
+      V('il figlio', 'der Sohn', '👦', 'Nostro figlio abita a Monaco.', 'Unser Sohn wohnt in München.'),
+      V('la figlia', 'die Tochter', '👧', 'Mia figlia studia a Roma.', 'Meine Tochter studiert in Rom.'),
+      V('il fratello', 'der Bruder', '🧑', 'Ho un fratello e due cugini.', 'Ich habe einen Bruder und zwei Cousins.'),
+      V('la sorella', 'die Schwester', '👩‍🦰', 'Mia sorella è molto simpatica.', 'Meine Schwester ist sehr sympathisch.'),
+      V('il nonno', 'der Großvater', '👴', 'Il nonno legge il giornale.', 'Der Großvater liest die Zeitung.'),
+      V('la nonna', 'die Großmutter', '👵', 'La nonna cucina molto bene.', 'Die Großmutter kocht sehr gut.'),
+      V('l\'amico', 'der Freund', '🤝', 'Paolo è un amico di Marco.', 'Paolo ist ein Freund von Marco.'),
+      V('il marito', 'der Ehemann', '🤵', 'Mio marito parla un po\' d\'italiano.', 'Mein Mann spricht ein bisschen Italienisch.'),
+      V('la moglie', 'die Ehefrau', '👰', 'Mia moglie ama l\'Italia.', 'Meine Frau liebt Italien.'),
+    ],
+    grammar: [{
+      title: 'Mein, dein bei Verwandten',
+      text: 'Normalerweise steht vor „mio, tuo, suo“ der Artikel (il mio libro). Bei einzelnen Verwandten fällt der Artikel weg: mia madre, mio fratello. In der Mehrzahl kommt er wieder: i miei fratelli.',
+      examples: [{ it: 'Mia sorella abita a Milano.', de: 'Meine Schwester wohnt in Mailand.' }, { it: 'Il mio amico è italiano.', de: 'Mein Freund ist Italiener.' }],
+    }],
+    pool: [],
+  },
+  {
+    id: 'b-viaggio', builtin: true, emoji: '🚆', title: 'Unterwegs in Italien',
+    summary: 'Wörter für die Reise, die Stadt und den Urlaub.',
+    vocab: [
+      V('la stazione', 'der Bahnhof', '🚉', 'La stazione è vicino al centro.', 'Der Bahnhof ist in der Nähe des Zentrums.'),
+      V('il treno', 'der Zug', '🚆', 'Il treno parte alle nove.', 'Der Zug fährt um neun Uhr ab.'),
+      V('l\'albergo', 'das Hotel', '🏨', 'L\'albergo ha una bella terrazza.', 'Das Hotel hat eine schöne Terrasse.'),
+      V('la spiaggia', 'der Strand', '🏖️', 'Andiamo in spiaggia domani.', 'Wir gehen morgen an den Strand.'),
+      V('il mare', 'das Meer', '🌊', 'Il mare è calmo oggi.', 'Das Meer ist heute ruhig.'),
+      V('la città', 'die Stadt', '🏙️', 'Firenze è una città bellissima.', 'Florenz ist eine wunderschöne Stadt.'),
+      V('la strada', 'die Straße', '🛣️', 'La strada è lunga e stretta.', 'Die Straße ist lang und schmal.'),
+      V('il biglietto', 'die Fahrkarte', '🎫', 'Compro un biglietto per Venezia.', 'Ich kaufe eine Fahrkarte nach Venedig.'),
+      V('la piazza', 'der Platz', '⛲', 'Ci vediamo in piazza alle sei.', 'Wir sehen uns um sechs auf dem Platz.'),
+      V('il ristorante', 'das Restaurant', '🍽️', 'Il ristorante apre alle sette.', 'Das Restaurant öffnet um sieben.'),
+      V('la chiesa', 'die Kirche', '⛪', 'La chiesa è molto antica.', 'Die Kirche ist sehr alt.'),
+      V('il mercato', 'der Markt', '🧺', 'Al mercato compro frutta fresca.', 'Auf dem Markt kaufe ich frisches Obst.'),
+    ],
+    grammar: [],
+    culture: {
+      title: 'La passeggiata',
+      it: 'La sera molti italiani fanno una passeggiata in centro. Incontrano gli amici in piazza, parlano e prendono un gelato.',
+      de: 'Abends machen viele Italiener einen Spaziergang im Zentrum. Sie treffen Freunde auf dem Platz, unterhalten sich und essen ein Eis.',
+    },
+    pool: [],
+  },
+];
+
+// Verben im Präsens für den Verb-Trainer.
+const PERSONS = ['io', 'tu', 'lui / lei', 'noi', 'voi', 'loro'];
+const VERBS = [
+  { inf: 'essere', de: 'sein', forms: ['sono', 'sei', 'è', 'siamo', 'siete', 'sono'] },
+  { inf: 'avere', de: 'haben', forms: ['ho', 'hai', 'ha', 'abbiamo', 'avete', 'hanno'] },
+  { inf: 'parlare', de: 'sprechen', forms: ['parlo', 'parli', 'parla', 'parliamo', 'parlate', 'parlano'] },
+  { inf: 'abitare', de: 'wohnen', forms: ['abito', 'abiti', 'abita', 'abitiamo', 'abitate', 'abitano'] },
+  { inf: 'mangiare', de: 'essen', forms: ['mangio', 'mangi', 'mangia', 'mangiamo', 'mangiate', 'mangiano'] },
+  { inf: 'andare', de: 'gehen / fahren', forms: ['vado', 'vai', 'va', 'andiamo', 'andate', 'vanno'] },
+  { inf: 'fare', de: 'machen', forms: ['faccio', 'fai', 'fa', 'facciamo', 'fate', 'fanno'] },
+  { inf: 'prendere', de: 'nehmen', forms: ['prendo', 'prendi', 'prende', 'prendiamo', 'prendete', 'prendono'] },
+  { inf: 'bere', de: 'trinken', forms: ['bevo', 'bevi', 'beve', 'beviamo', 'bevete', 'bevono'] },
+  { inf: 'volere', de: 'wollen', forms: ['voglio', 'vuoi', 'vuole', 'vogliamo', 'volete', 'vogliono'] },
+  { inf: 'potere', de: 'können', forms: ['posso', 'puoi', 'può', 'possiamo', 'potete', 'possono'] },
+  { inf: 'venire', de: 'kommen', forms: ['vengo', 'vieni', 'viene', 'veniamo', 'venite', 'vengono'] },
+  { inf: 'dormire', de: 'schlafen', forms: ['dormo', 'dormi', 'dorme', 'dormiamo', 'dormite', 'dormono'] },
+  { inf: 'capire', de: 'verstehen', forms: ['capisco', 'capisci', 'capisce', 'capiamo', 'capite', 'capiscono'] },
+];
+
+const PRAISE = ['Bravo!', 'Ottimo!', 'Perfetto!', 'Benissimo!', 'Esatto!', 'Molto bene!', 'Fantastico!'];
+const COMFORT = ['Fast!', 'Nicht schlimm.', 'Das kommt noch.', 'Guter Versuch.', 'Beim nächsten Mal klappt es.'];
+
+const LEVELS = [
+  { n: 1, name: 'Sanfter Einstieg', ai: 'sehr leicht (A1.1): nur Wiedererkennen, Sätze mit höchstens 5 Wörtern, nur Präsens, sehr häufige Wörter' },
+  { n: 2, name: 'Leicht', ai: 'leicht (A1.1 bis A1.2): kurze Sätze mit höchstens 7 Wörtern, Präsens, einfache Lücken mit klaren Auswahlmöglichkeiten' },
+  { n: 3, name: 'Mittel', ai: 'mittel (A1.2): Sätze bis 9 Wörter, die Grammatik der Stunde aktiv anwenden, einzelne neue Wörter aus dem Kontext erschließbar' },
+  { n: 4, name: 'Fordernd', ai: 'fordernd (A1.2 bis A2.1): neue Alltagssituationen, Wörter in gebeugter Form, kurze eigene Übersetzungen, ähnliche Antwortmöglichkeiten' },
+  { n: 5, name: 'Anspruchsvoll', ai: 'anspruchsvoll (A2.1): längere Sätze, Verbindung mehrerer Grammatikthemen, mehrere neue Wörter, feine Unterschiede zwischen den Antwortmöglichkeiten' },
+];
+
+const BADGES = [
+  { id: 'first', emoji: '🌱', name: 'Erster Schritt', text: 'Die erste Lerneinheit geschafft', test: p => p.sessions >= 1 },
+  { id: 's3', emoji: '🔥', name: '3 Tage am Stück', text: 'Drei Tage hintereinander gelernt', test: p => p.best >= 3 },
+  { id: 's7', emoji: '🏆', name: 'Eine ganze Woche', text: 'Sieben Tage hintereinander gelernt', test: p => p.best >= 7 },
+  { id: 's30', emoji: '👑', name: 'Ein ganzer Monat', text: '30 Tage hintereinander gelernt', test: p => p.best >= 30 },
+  { id: 'x100', emoji: '⭐', name: '100 Punkte', text: '100 Punkte gesammelt', test: p => p.xp >= 100 },
+  { id: 'x500', emoji: '🌟', name: '500 Punkte', text: '500 Punkte gesammelt', test: p => p.xp >= 500 },
+  { id: 'x2000', emoji: '💫', name: '2000 Punkte', text: '2000 Punkte gesammelt', test: p => p.xp >= 2000 },
+  { id: 'w25', emoji: '📚', name: '25 Wörter', text: '25 Wörter sicher gelernt', test: (p, s) => s.mastered >= 25 },
+  { id: 'w100', emoji: '🎓', name: '100 Wörter', text: '100 Wörter sicher gelernt', test: (p, s) => s.mastered >= 100 },
+  { id: 'perfect', emoji: '💯', name: 'Fehlerfrei', text: 'Eine Lerneinheit ohne Fehler', test: p => p.perfect >= 1 },
+  { id: 'photo', emoji: '📷', name: 'Eigene Unterlagen', text: 'Die erste eigene Lektion aus dem Unterricht angelegt', test: (p, s) => s.ownUnits >= 1 },
+  { id: 'photo5', emoji: '🗂️', name: 'Fleißig gesammelt', text: 'Fünf eigene Lektionen angelegt', test: (p, s) => s.ownUnits >= 5 },
+  { id: 'memory', emoji: '🃏', name: 'Gutes Gedächtnis', text: 'Ein Memory-Spiel gewonnen', test: p => p.memory >= 1 },
+];
+
+// ---- store.js ----
+// Speicherung auf dem Gerät (localStorage). Es werden keine Daten an einen eigenen Server gesendet.
+
+const KEY = 'parla.v1';
+
+const defaults = () => ({
+  v: 1, profiles: [], current: null, units: [],
+  settings: { apiKey: '', model: 'claude-opus-5-5', proxyUrl: '' },
+});
+
+const newProfile = (name, avatar) => ({
+  id: 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e4),
+  name, avatar, xp: 0, streak: 0, best: 0, lastDay: null, days: {},
+  level: 1.6, auto: true, items: {}, done: {}, badges: [],
+  sessions: 0, answers: 0, correct: 0, perfect: 0, memory: 0,
+  prefs: { font: 1, rate: 0.85, goal: 50, len: 10, sound: true, speakEx: true },
+});
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const s = JSON.parse(raw), d = defaults();
+      return { ...d, ...s, settings: { ...d.settings, ...(s.settings || {}) } };
+    }
+  } catch (e) { console.warn('Laden fehlgeschlagen', e); }
+  return defaults();
+}
+
+const state = load();
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch (e) { console.warn('Speichern fehlgeschlagen', e); }
+}
+
+function replaceState(obj) {
+  const d = defaults();
+  Object.keys(state).forEach(k => delete state[k]);
+  Object.assign(state, d, obj, { settings: { ...d.settings, ...(obj.settings || {}) } });
+  save();
+}
+
+const profile = () => state.profiles.find(p => p.id === state.current) || null;
+const allUnits = () => [...state.units, ...STARTER];
+const unitById = id => allUnits().find(u => u.id === id);
+
+function dayKey(d = new Date()) {
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+const norm = s => String(s || '').toLowerCase().normalize('NFC')
+  .replace(/[.,!?;:¡¿"«»()]/g, ' ').replace(/[’`´]/g, '\'').replace(/\s+/g, ' ').trim();
+const stripAcc = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+const wordId = it => 'w:' + norm(it);
+
+// Wiederholung in wachsenden Abständen (Leitner-System): Fach 0 bis 5.
+const INTERVAL = [0, 1, 2, 4, 9, 21];
+function grade(p, id, ok) {
+  const it = p.items[id] || (p.items[id] = { box: 0, due: 0, ok: 0, ko: 0 });
+  if (ok) { it.ok++; it.box = Math.min(5, it.box + 1); }
+  else { it.ko++; it.box = Math.max(0, Math.min(it.box - 1, 1)); }
+  it.due = Date.now() + INTERVAL[it.box] * 864e5 - 6 * 36e5;
+}
+
+function stats(p) {
+  let mastered = 0, learning = 0, due = 0;
+  const now = Date.now();
+  for (const [id, it] of Object.entries(p.items)) {
+    if (!id.startsWith('w:')) continue;
+    if (it.box >= 3) mastered++; else learning++;
+    if (it.due <= now) due++;
+  }
+  return { mastered, learning, due, ownUnits: state.units.length };
+}
+
+function touchDay(p, xp) {
+  const t = dayKey();
+  if (p.lastDay !== t) {
+    const y = dayKey(new Date(Date.now() - 864e5));
+    p.streak = p.lastDay === y ? p.streak + 1 : 1;
+    p.lastDay = t;
+    p.best = Math.max(p.best, p.streak);
+  }
+  p.days[t] = (p.days[t] || 0) + xp;
+  p.xp += xp;
+}
+
+function liveStreak(p) {
+  if (!p.lastDay) return 0;
+  const y = dayKey(new Date(Date.now() - 864e5));
+  return (p.lastDay === dayKey() || p.lastDay === y) ? p.streak : 0;
+}
+
+// ---- exercises.js ----
+// Erzeugt Lerneinheiten: wählt Wörter nach Wiederholungsplan und passt die Aufgabenart an das Niveau an.
+
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+const ARTICLE = /^(il|lo|la|i|gli|le|un|uno|una)\s+|^(l'|un')\s*/i;
+const bare = it => it.replace(ARTICLE, '').trim();
+
+function collectWords(unitIds) {
+  const seen = new Set(), out = [];
+  for (const u of allUnits()) {
+    if (unitIds && !unitIds.includes(u.id)) continue;
+    for (const v of u.vocab) {
+      const id = wordId(v.it);
+      if (seen.has(id)) continue;
+      seen.add(id); out.push({ ...v, id, unit: u.id });
+    }
+  }
+  return out;
+}
+
+function distract(word, all, field, n) {
+  const out = [], used = new Set([norm(word[field])]);
+  const same = shuffle(all.filter(w => w.unit === word.unit)), other = shuffle(all.filter(w => w.unit !== word.unit));
+  for (const w of [...same, ...other]) {
+    const k = norm(w[field]);
+    if (used.has(k) || w.id === word.id) continue;
+    used.add(k); out.push(w[field]);
+    if (out.length === n) break;
+  }
+  return out;
+}
+
+function mcFrom(q, correct, wrong, extra = {}) {
+  const opts = shuffle([correct, ...wrong]);
+  return { k: 'mc', q, opts, ans: opts.indexOf(correct), ...extra };
+}
+
+const tokens = s => s.trim().split(/\s+/);
+const orderable = s => { const n = tokens(s || '').length; return n >= 3 && n <= 9; };
+
+function clozeFrom(w, all, typed) {
+  const b = bare(w.it);
+  if (!w.ex_it || b.length < 2) return null;
+  const idx = w.ex_it.toLowerCase().indexOf(b.toLowerCase());
+  if (idx < 0) return null;
+  const found = w.ex_it.slice(idx, idx + b.length);
+  const sent = w.ex_it.slice(0, idx) + '___' + w.ex_it.slice(idx + b.length);
+  const cap = found[0] !== found[0].toLowerCase();
+  const fix = s => { s = bare(s); return cap ? s[0].toUpperCase() + s.slice(1) : s; };
+  const wrong = distract(w, all, 'it', 2).map(fix).filter(x => norm(x) !== norm(found));
+  if (!typed && wrong.length < 2) return null;
+  return { k: 'cloze', sent, de: w.ex_de, opts: typed ? null : shuffle([found, ...wrong]), ans: found, items: [w.id], say: w.ex_it };
+}
+
+function orderFrom(sent, de, items, level, all) {
+  const t = tokens(sent);
+  let extra = [];
+  if (level >= 3.2 && all) {
+    const have = new Set(t.map(norm));
+    extra = shuffle(all.map(w => bare(w.it)).filter(x => !x.includes(' ') && !have.has(norm(x)))).slice(0, level >= 4.2 ? 2 : 1);
+  }
+  return { k: 'order', de, tokens: t, bank: shuffle([...t, ...extra]), items, say: sent };
+}
+
+function wordExercise(w, eff, all, prefs, forced) {
+  const n = eff < 2 ? 2 : 3;
+  const itde = () => mcFrom(w.it, w.de, distract(w, all, 'de', n), { items: [w.id], say: w.it, sub: 'Was bedeutet das?', big: true, emoji: '' });
+  const deit = () => mcFrom(w.de, w.it, distract(w, all, 'it', n), { items: [w.id], sub: 'Wie heißt das auf Italienisch?', big: true, emoji: w.emoji, sayAfter: w.it });
+  const listen = () => { const o = mcFrom('', w.de, distract(w, all, 'de', n), { items: [w.id] }); return { ...o, k: 'listen', audio: w.it, reveal: w.it }; };
+  const type = () => ({ k: 'type', de: w.de, ans: w.it, emoji: w.emoji, items: [w.id], hint: eff < 4.2 ? bare(w.it)[0] : '' });
+  const speak = () => (eff >= 3.8 && w.ex_it
+    ? { k: 'speak', it: w.ex_it, de: w.ex_de, items: [w.id] } : { k: 'speak', it: w.it, de: w.de, items: [w.id] });
+  const order = () => (orderable(w.ex_it) ? orderFrom(w.ex_it, w.ex_de, [w.id], eff, all) : null);
+
+  let kinds;
+  if (forced) kinds = [forced];
+  else if (eff < 2) kinds = ['itde', 'listen', 'itde'];
+  else if (eff < 3) kinds = ['deit', 'listen', 'cloze', 'itde'];
+  else if (eff < 4) kinds = ['cloze', 'order', 'type', 'deit', 'listen'];
+  else kinds = ['type', 'order', 'clozeT', 'type', prefs.speakEx ? 'speak' : 'order'];
+  const make = { itde, deit, listen, type, speak, order, cloze: () => clozeFrom(w, all, false), clozeT: () => clozeFrom(w, all, true) };
+  return make[pick(kinds)]() || (eff < 2.5 ? itde() : deit());
+}
+
+function verbPool(units, level) {
+  const own = units.flatMap(u => u.verbs || []);
+  const base = VERBS.slice(0, Math.min(VERBS.length, 2 + Math.round(level * 2.5)));
+  const seen = new Set();
+  return [...own, ...base].filter(v => !seen.has(v.inf) && seen.add(v.inf));
+}
+
+function verbExercise(v, level) {
+  const i = Math.floor(Math.random() * 6), form = v.forms[i];
+  const typed = level >= 3.6;
+  const wrong = shuffle([...new Set(v.forms)].filter(f => f !== form)).slice(0, level < 2 ? 2 : 3);
+  return {
+    k: 'cloze', sent: `${PERSONS[i]} ___`, de: `${v.inf} = ${v.de}`, title: 'Welche Verbform passt?',
+    opts: typed ? null : shuffle([form, ...wrong]), ans: form, items: [`v:${v.inf}:${i}`],
+    say: `${PERSONS[i].split(' / ')[0]} ${form}`, explain: `${v.inf}: ${v.forms.join(', ')}`,
+  };
+}
+
+function fromPool(x, level) {
+  if (x.type === 'mc') {
+    const correct = x.opts[x.ans], opts = shuffle(x.opts);
+    return { k: 'mc', q: x.q, opts, ans: opts.indexOf(correct), explain: x.explain, xid: x.id, items: [] };
+  }
+  if (x.type === 'cloze') return { k: 'cloze', sent: x.sent, de: x.de, opts: level >= 4.4 ? null : shuffle(x.opts), ans: x.answer, explain: x.explain, xid: x.id, items: [], say: x.sent.replace('___', x.answer) };
+  if (x.type === 'order') return { ...orderFrom(x.sent, x.de, [], level, null), xid: x.id };
+  return { k: 'type', de: x.de, ans: x.it, items: [], xid: x.id, hint: '' };
+}
+
+function storyExercises(story) {
+  return [
+    { k: 'read', title: story.title, it: story.it, de: story.de },
+    ...story.questions.map(q => { const c = q.opts[q.ans], opts = shuffle(q.opts); return { k: 'mc', q: q.q, opts, ans: opts.indexOf(c), items: [], sub: 'Frage zum Text' }; }),
+  ];
+}
+
+// mode: mix | review | listen | order | speak | verbs
+function buildSession(p, { unitIds = null, mode = 'mix', len } = {}) {
+  len = len || p.prefs.len;
+  const L = p.level, now = Date.now();
+  const units = allUnits().filter(u => !unitIds || unitIds.includes(u.id));
+  const words = collectWords(unitIds), all = collectWords(null);
+  const st = w => p.items[w.id];
+
+  if (mode === 'verbs') {
+    const pool = verbPool(units, L);
+    return Array.from({ length: len }, () => verbExercise(pick(pool), L));
+  }
+
+  const due = words.filter(w => st(w) && st(w).due <= now).sort((a, b) => st(a).box - st(b).box || st(a).due - st(b).due);
+  const fresh = words.filter(w => !st(w));
+  const later = words.filter(w => st(w) && st(w).due > now).sort((a, b) => st(a).due - st(b).due);
+
+  const forced = { listen: 'listen', speak: 'speak', order: 'order' }[mode];
+  let chosen;
+  if (mode === 'review') chosen = [...due, ...later].slice(0, len);
+  else if (forced) {
+    const ok = w => mode !== 'order' || orderable(w.ex_it);
+    chosen = [...due, ...shuffle(later), ...fresh].filter(ok).slice(0, len);
+  } else {
+    const target = Math.ceil(len * 0.7);
+    let nNew = L < 2 ? 2 : L < 3.5 ? 3 : 4;
+    if (due.length < target - nNew) nNew = Math.min(5, target - due.length);
+    const f = fresh.slice(0, nNew);
+    chosen = [...due.slice(0, target - f.length), ...f];
+    if (chosen.length < target) chosen.push(...later.slice(0, target - chosen.length));
+  }
+
+  const cards = [], body = [];
+  for (const w of chosen) {
+    const s = st(w), box = s ? s.box : 0;
+    const eff = L + (box - 1.5) * 0.35 + (Math.random() - 0.5) * 0.6;
+    if (!s && !forced) { cards.push({ k: 'card', w }); body.push(wordExercise(w, 1, all, p.prefs, 'itde')); }
+    else body.push(wordExercise(w, eff, all, p.prefs, forced));
+  }
+
+  if (mode === 'mix') {
+    // Aufgaben aus dem Unterricht (von der KI erzeugt), passend zum Niveau und möglichst noch nicht gelöst.
+    const pool = units.flatMap(u => u.pool || []).filter(x => Math.abs(x.level - L) <= 1.4)
+      .map(x => ({ x, r: (p.done[x.id] || 0) * 10 + Math.abs(x.level - L) + Math.random() }))
+      .sort((a, b) => a.r - b.r).slice(0, Math.max(2, Math.floor(len * (unitIds ? 0.5 : 0.35)))).map(o => fromPool(o.x, L));
+    body.push(...pool);
+    if (L >= 1.8 && !unitIds || units.some(u => (u.verbs || []).length)) {
+      const vp = verbPool(units, L);
+      body.push(verbExercise(pick(vp), L));
+    }
+    const m = chosen.filter(w => w.de.length < 26 && w.it.length < 26);
+    if (m.length >= 4) {
+      const pairs = shuffle(m).slice(0, L < 3 ? 4 : 5);
+      body.push({ k: 'match', pairs: pairs.map(w => [w.it, w.de]), items: pairs.map(w => w.id) });
+    }
+  }
+  const rest = shuffle(body).slice(0, len);
+  return [...cards.filter(c => rest.some(e => e.items && e.items.includes(c.w.id))), ...rest];
+}
+
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+
+// Nachsichtige Prüfung getippter Antworten: Akzente, Artikel und kleine Tippfehler führen nicht zum Fehler.
+function checkTyped(given, answer) {
+  const g = norm(given);
+  if (!g) return { ok: false };
+  let best = { ok: false };
+  for (const alt of answer.split(/\s+\/\s+/)) {
+    const a = norm(alt);
+    if (g === a) return { ok: true };
+    const g2 = stripAcc(g), a2 = stripAcc(a);
+    if (g2 === a2) best = { ok: true, note: 'Richtig! Achte noch auf den Akzent.' };
+    else if (!best.ok && norm(bare(g)) === norm(bare(a))) best = { ok: true, note: 'Richtig! Denke noch an den Artikel.' };
+    else if (!best.ok && a2.length >= 5 && lev(g2, a2) <= (a2.length >= 12 ? 2 : 1)) best = { ok: true, note: 'Fast perfekt, nur ein kleiner Tippfehler.' };
+  }
+  return best;
+}
+
+function similar(heard, target) {
+  const a = stripAcc(norm(heard)), b = stripAcc(norm(target));
+  if (!a || !b) return 0;
+  return 1 - lev(a, b) / Math.max(a.length, b.length);
+}
+
+// ---- ai.js ----
+// Anbindung an die Claude-API: Fotos der Unterrichtsunterlagen lesen und neue Übungen erzeugen.
+// Der Schlüssel liegt nur auf dem Gerät (Einstellungen) oder alternativ hinter einem eigenen Proxy.
+
+const API_URL = 'https://api.anthropic.com/v1/messages';
+
+// Weg 1 (kostenlos): Die Seite läuft als Artifact auf claude.ai und fragt Claude über das Konto der Person, die sie öffnet.
+// Weg 2: eigener API-Schlüssel oder Proxy. Weg 3: Anleitung kopieren und Antwort aus der Claude-App einfügen.
+let sampleFn = null, sampleImages = false;
+const aiMode = () => (sampleFn ? 'claude' : (state.settings.apiKey || state.settings.proxyUrl) ? 'key' : 'none');
+const aiReady = () => aiMode() !== 'none';
+const canSendPhotos = () => (sampleFn ? sampleImages : aiReady());
+async function initAI(onChange) {
+  try {
+    const fn = await window.claude?.use?.('sample');
+    if (!fn) return;
+    sampleFn = fn;
+    const lim = await fn.limits().catch(() => null);
+    sampleImages = !!lim?.images;
+    onChange();
+  } catch (e) { /* kein Claude-Zugang in dieser Ansicht */ }
+}
+
+const SAMPLE_ERRORS = {
+  not_granted: 'Die Nutzung von Claude wurde für diese Seite nicht erlaubt. Bitte die Seite neu laden und die Frage mit „Erlauben“ beantworten.',
+  sampling_disabled: 'Claude steht für dieses Konto hier nicht zur Verfügung.',
+  rate_limited: 'Das Nutzungslimit des Claude-Kontos ist im Moment erreicht. Bitte später noch einmal versuchen.',
+  session_expired: 'Bitte bei Claude neu anmelden und die Seite noch einmal öffnen.',
+  image_rejected: 'Eines der Fotos konnte nicht verarbeitet werden. Bitte ein anderes Foto versuchen.',
+  images_unavailable: 'In dieser Ansicht können keine Fotos an Claude gesendet werden.',
+  refused: 'Claude konnte diese Anfrage nicht bearbeiten. Bitte ein anderes Foto versuchen.',
+  prompt_too_large: 'Die Anfrage war zu groß. Bitte weniger auf einmal senden.',
+};
+
+function toBlob(dataUrl) {
+  const [head, b64] = dataUrl.split(','), bin = atob(b64), arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: (head.match(/data:(.*?);/) || [])[1] || 'image/jpeg' });
+}
+
+async function ask(text, { images = [], quick = false, effort = 'low', maxTokens = 16000 } = {}) {
+  if (sampleFn) {
+    try {
+      const opts = { cache: false, modelTier: quick ? 'quick' : 'default' };
+      if (images.length) opts.images = images.map(toBlob);
+      const r = await sampleFn(PERSONA + '\n\n' + text, opts);
+      if (r.truncated && !r.text.trim().endsWith('}')) throw { code: 'truncated' };
+      return r.text;
+    } catch (e) {
+      throw new Error(SAMPLE_ERRORS[e?.code] || (e?.code === 'truncated' ? 'Die Antwort war zu lang. Bitte weniger Fotos auf einmal senden.' : 'Claude ist gerade nicht erreichbar. Bitte später noch einmal versuchen.'));
+    }
+  }
+  const content = images.map(d => ({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: d.split(',')[1] } }));
+  content.push({ type: 'text', text });
+  return callClaude({ system: PERSONA, content, effort, maxTokens });
+}
+
+async function callClaude({ system, content, effort = 'low', maxTokens = 16000 }) {
+  const { apiKey, proxyUrl, model } = state.settings;
+  if (!apiKey && !proxyUrl) throw new Error('Es ist noch kein KI-Zugang eingerichtet. Bitte in den Einstellungen nachsehen.');
+  const body = {
+    model, max_tokens: maxTokens, system,
+    output_config: { effort },
+    messages: [{ role: 'user', content }],
+  };
+  const headers = { 'content-type': 'application/json' };
+  if (!proxyUrl) {
+    headers['x-api-key'] = apiKey;
+    headers['anthropic-version'] = '2026-10-21';
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+    // Bei einer (hier sehr unwahrscheinlichen) Ablehnung durch Sicherheitsfilter antwortet ein Ersatzmodell.
+    if (!model.includes('haiku')) {
+      headers['anthropic-beta'] = 'server-side-fallback-2026-07-01';
+      body.fallbacks = 'default';
+    }
+  }
+  let res, lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      res = await fetch(proxyUrl || API_URL, { method: 'POST', headers, body: JSON.stringify(body) });
+    } catch (e) {
+      lastErr = new Error('Keine Verbindung zum Internet. Bitte WLAN oder mobile Daten prüfen und noch einmal versuchen.');
+      await wait(1500 * (attempt + 1)); continue;
+    }
+    if (res.ok) break;
+    let msg = '';
+    try { msg = (await res.json())?.error?.message || ''; } catch (e) { /* kein JSON */ }
+    if (res.status === 401 || res.status === 403) throw new Error('Der KI-Schlüssel wurde nicht akzeptiert. Bitte in den Einstellungen prüfen.');
+    if (res.status === 400 || res.status === 404 || res.status === 413) throw new Error('Die Anfrage wurde abgelehnt. ' + (res.status === 413 ? 'Die Fotos sind zu groß, bitte weniger Fotos auf einmal senden.' : msg));
+    lastErr = new Error(res.status === 429
+      ? 'Im Moment sind zu viele Anfragen unterwegs. Bitte in einer Minute noch einmal versuchen.'
+      : 'Der KI-Dienst ist gerade nicht erreichbar. Bitte später noch einmal versuchen.');
+    res = null;
+    await wait(2500 * (attempt + 1));
+  }
+  if (!res) throw lastErr;
+  const data = await res.json();
+  if (data.stop_reason === 'refusal') throw new Error('Die KI konnte diese Anfrage nicht bearbeiten. Bitte ein anderes Foto versuchen.');
+  const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+  if (data.stop_reason === 'max_tokens' && !text.trim().endsWith('}')) throw new Error('Die Antwort der KI war zu lang. Bitte weniger Fotos auf einmal senden.');
+  return text;
+}
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+function parseJSON(text) {
+  const a = text.indexOf('{'), b = text.lastIndexOf('}');
+  if (a < 0 || b <= a) throw new Error('Die Antwort der KI war nicht lesbar. Bitte noch einmal versuchen.');
+  try { return JSON.parse(text.slice(a, b + 1)); }
+  catch (e) { throw new Error('Die Antwort der KI war nicht lesbar. Bitte noch einmal versuchen.'); }
+}
+
+const EXERCISE_SPEC = `Aufgabenformate (Feld "exercises", jede Aufgabe mit "level" von 1 bis 5):
+- {"type":"mc","question_de":"Frage auf Deutsch, das Italienische darin in « »","options":["...","...","..."],"answer_index":0,"explain_de":"kurze Erklärung","level":2}
+- {"type":"cloze","sentence_it":"Italienischer Satz mit genau einer Lücke ___","translation_de":"deutsche Übersetzung des ganzen Satzes","options":["richtig","falsch1","falsch2"],"answer":"richtig","explain_de":"warum diese Form","level":2}
+- {"type":"order","sentence_it":"Vollständiger italienischer Satz mit 3 bis 8 Wörtern","translation_de":"deutsche Übersetzung","level":3}
+- {"type":"translate","de":"kurzer deutscher Ausdruck oder Satz","it":"italienische Lösung","level":4}
+Regeln für Aufgaben: Genau eine Antwort ist eindeutig richtig. Falsche Antworten sind plausibel, aber klar falsch. Bei "mc" stehen 3 oder 4 Antworten, die Position der richtigen Antwort wechselt. Erklärungen sind kurz, freundlich und auf Deutsch.`;
+
+const PERSONA = `Du bist eine erfahrene, geduldige Italienischlehrerin für deutschsprachige Erwachsene über 60 auf dem Niveau A1. Du arbeitest für eine Lern-App, die den wöchentlichen Einzelunterricht ergänzt. Die Lernenden lernen langsam und brauchen Erfolgserlebnisse, klare Beispiele aus dem Alltag (Reise, Essen, Familie, Einkaufen, Arztbesuch, Freizeit) und viele Wiederholungen in immer neuen Zusammenhängen. Alles Italienische muss fehlerfrei, natürlich und idiomatisch sein. Erklärungen sind auf Deutsch, in einfachen Worten und ohne Fachjargon, den man nicht aus der Schule kennt.
+Antworte ausschließlich mit einem einzigen gültigen JSON-Objekt, ohne Einleitung, ohne Markdown und ohne Kommentare.`;
+
+function levelText(level) {
+  const l = LEVELS[Math.max(1, Math.min(5, Math.round(level))) - 1];
+  return `Stufe ${l.n} von 5: ${l.ai}`;
+}
+
+// Anleitung, mit der Claude aus Fotos eine vollständige Lektion baut.
+function photoPrompt(note, level) {
+  return `Das sind Fotos der Unterlagen aus der letzten Italienischstunde (Arbeitsblätter, teils handschriftlich ausgefüllt, Grammatikübersichten, eigene Notizen, Tafelbilder).
+${note ? 'Hinweis der Lernenden zur Stunde: ' + note + '\n' : ''}
+Aufgabe:
+1. Lies alle Fotos sorgfältig, auch die Handschrift. Erfasse, was in der Stunde gelernt wurde: Vokabeln, Wendungen, Grammatik, Verben, landeskundliche Inhalte. Korrigiere dabei stillschweigend Schreibfehler der Lernenden. Lasse aus, was du nicht sicher lesen kannst.
+2. Baue daraus eine Lektion, die den Stoff wiederholt, in neue Zusammenhänge setzt und behutsam erweitert. Verbinde die Vokabeln der Stunde mit der Grammatik der Stunde. Verwende in Beispielsätzen und Aufgaben andere Sätze als auf den Arbeitsblättern.
+3. Ergänze 3 bis 6 thematisch passende, nützliche neue Wörter und kennzeichne sie mit "new": true.
+
+Aktuelles Niveau der Lernenden: ${levelText(level)}
+
+Gib genau dieses JSON zurück:
+{
+ "title": "kurzer deutscher Titel der Lektion",
+ "emoji": "ein passendes Emoji",
+ "summary_de": "2 bis 3 Sätze: Was wurde in der Stunde gelernt?",
+ "vocab": [{"it":"Wort mit Artikel bei Nomen, Verben im Infinitiv","de":"deutsche Bedeutung","emoji":"passendes Emoji oder leer","example_it":"kurzer neuer Beispielsatz, der das Wort enthält","example_de":"Übersetzung","new":false}],
+ "grammar": [{"title":"Thema","explanation_de":"einfache Erklärung in 2 bis 4 Sätzen mit Merkhilfe","examples":[{"it":"...","de":"..."}]}],
+ "conjugations": [{"infinitive":"...","de":"...","forms":["io-Form","tu-Form","lui/lei-Form","noi-Form","voi-Form","loro-Form"]}],
+ "story": {"title":"...","text_it":"kleine Geschichte oder Dialog mit 5 bis 8 kurzen Sätzen, die Vokabeln und Grammatik der Stunde in einer neuen Alltagssituation verwendet","text_de":"Übersetzung","questions":[{"question_de":"Verständnisfrage","options":["...","...","..."],"answer_index":0}]},
+ "culture": {"title":"...","text_it":"3 bis 4 einfache Sätze zu italienischer Kultur, Küche, Alltag oder Literatur, passend zum Thema der Stunde","text_de":"Übersetzung"},
+ "exercises": [ 14 bis 18 Aufgaben, gemischt aus allen vier Formaten und über die Stufen 1 bis 5 verteilt, mit Schwerpunkt auf dem aktuellen Niveau ]
+}
+"conjugations" enthält nur Verben im Präsens, die in der Stunde vorkamen (höchstens 4). "vocab" enthält höchstens 30 Einträge. Wenn auf den Fotos nichts Italienisches erkennbar ist, gib {"error":"kurze deutsche Erklärung, was auf dem Foto fehlt"} zurück.
+
+${EXERCISE_SPEC}`;
+}
+
+async function analysePhotos(images, note, level) {
+  const out = parseJSON(await ask(photoPrompt(note, level), { images, effort: 'medium', maxTokens: 20000 }));
+  if (out.error) throw new Error(String(out.error));
+  return out;
+}
+
+// Vollständiger Text zum Kopieren in die Claude-App (Weg 3).
+const copyText = body => PERSONA + '\n\n' + body;
+
+// Neue, weiterführende Aufgaben zu einer bestehenden Lektion erzeugen (angepasst an Niveau und Schwächen).
+function morePrompt(unit, level, weakWords) {
+  return `Lektion: ${unit.title}
+Vokabeln: ${unit.vocab.map(v => `${v.it} = ${v.de}`).join('; ')}
+Grammatik: ${(unit.grammar || []).map(g => g.title).join('; ') || 'keine besondere'}
+Verben: ${(unit.verbs || []).map(v => v.inf).join(', ') || 'keine besonderen'}
+Bereits verwendete Geschichten: ${(unit.stories || []).map(s => s.title).join('; ') || 'keine'}
+Wörter, die den Lernenden noch schwerfallen: ${weakWords.join(', ') || 'keine bekannt'}
+
+Aktuelles Niveau: ${levelText(level)}
+
+Erstelle neues, weiterführendes Material zu dieser Lektion. Setze den Stoff in eine NEUE Alltagssituation, die bisher nicht vorkam. Wende die Vokabeln in gebeugter Form an und verbinde sie mit der Grammatik der Lektion. Übe schwierige Wörter besonders oft. Führe 2 bis 4 neue, nützliche Wörter ein.
+
+Gib genau dieses JSON zurück:
+{
+ "new_vocab": [{"it":"...","de":"...","emoji":"","example_it":"...","example_de":"..."}],
+ "story": {"title":"...","text_it":"5 bis 8 kurze Sätze","text_de":"...","questions":[{"question_de":"...","options":["...","...","..."],"answer_index":0}]},
+ "culture": {"title":"...","text_it":"3 bis 4 einfache Sätze, neues Thema","text_de":"..."},
+ "exercises": [ 12 bis 14 Aufgaben, alle auf dem aktuellen Niveau oder eine Stufe darüber ]
+}
+
+${EXERCISE_SPEC}`;
+}
+const moreExercises = async (unit, level, weakWords) => parseJSON(await ask(morePrompt(unit, level, weakWords)));
+
+// Kurze, persönliche Erklärung zu einem Fehler.
+async function explainMistake(task, given, correct) {
+  const text = `Aufgabe: ${task}
+Antwort der Lernenden: ${given}
+Richtige Antwort: ${correct}
+Erkläre in höchstens 3 kurzen, freundlichen deutschen Sätzen, warum die richtige Antwort stimmt, und gib eine kleine Merkhilfe. Antworte als JSON: {"text":"..."}`;
+  const out = parseJSON(await ask(text, { quick: true, maxTokens: 2000 }));
+  return String(out.text || '');
+}
+
+// ---------- Prüfung und Aufbereitung der KI-Antworten ----------
+const str = (x, max = 400) => (typeof x === 'string' ? x.trim().slice(0, max) : '');
+
+function cleanExercises(list) {
+  const out = [];
+  for (const e of Array.isArray(list) ? list : []) {
+    if (!e || typeof e !== 'object') continue;
+    const level = Math.max(1, Math.min(5, Math.round(Number(e.level) || 2)));
+    const id = 'x' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
+    if (e.type === 'mc') {
+      const opts = (e.options || []).map(o => str(o, 120)).filter(Boolean);
+      const ans = Number(e.answer_index);
+      if (str(e.question_de) && opts.length >= 2 && Number.isInteger(ans) && ans >= 0 && ans < opts.length && new Set(opts).size === opts.length)
+        out.push({ id, level, type: 'mc', q: str(e.question_de), opts, ans, explain: str(e.explain_de) });
+    } else if (e.type === 'cloze') {
+      const opts = (e.options || []).map(o => str(o, 60)).filter(Boolean);
+      const answer = str(e.answer, 60), sent = str(e.sentence_it);
+      if (sent.includes('___') && answer && opts.includes(answer) && new Set(opts).size === opts.length)
+        out.push({ id, level, type: 'cloze', sent, de: str(e.translation_de), opts, answer, explain: str(e.explain_de) });
+    } else if (e.type === 'order') {
+      const sent = str(e.sentence_it, 160), n = sent.split(/\s+/).length;
+      if (n >= 3 && n <= 9 && str(e.translation_de)) out.push({ id, level, type: 'order', sent, de: str(e.translation_de) });
+    } else if (e.type === 'translate') {
+      if (str(e.de) && str(e.it)) out.push({ id, level, type: 'translate', de: str(e.de, 160), it: str(e.it, 160) });
+    }
+  }
+  return out;
+}
+
+function cleanVocab(list) {
+  const seen = new Set(), out = [];
+  for (const v of Array.isArray(list) ? list : []) {
+    const it = str(v?.it, 80), de = str(v?.de, 120);
+    if (!it || !de || seen.has(it.toLowerCase())) continue;
+    seen.add(it.toLowerCase());
+    out.push({ it, de, emoji: str(v.emoji, 8), ex_it: str(v.example_it, 200), ex_de: str(v.example_de, 200), isNew: !!v.new });
+  }
+  return out;
+}
+
+function cleanStory(s) {
+  if (!s || !str(s.text_it, 2000)) return null;
+  const questions = (Array.isArray(s.questions) ? s.questions : []).map(q => {
+    const opts = (q?.options || []).map(o => str(o, 120)).filter(Boolean), ans = Number(q?.answer_index);
+    return str(q?.question_de) && opts.length >= 2 && Number.isInteger(ans) && ans >= 0 && ans < opts.length
+      ? { q: str(q.question_de), opts, ans } : null;
+  }).filter(Boolean);
+  return { title: str(s.title, 100) || 'Geschichte', it: str(s.text_it, 2000), de: str(s.text_de, 2000), questions };
+}
+
+function toUnit(raw) {
+  const story = cleanStory(raw.story), culture = cleanStory(raw.culture);
+  return {
+    id: 'u' + Date.now().toString(36),
+    created: Date.now(),
+    emoji: str(raw.emoji, 8) || '📘',
+    title: str(raw.title, 80) || 'Neue Lektion',
+    summary: str(raw.summary_de, 600),
+    vocab: cleanVocab(raw.vocab),
+    grammar: (Array.isArray(raw.grammar) ? raw.grammar : []).map(g => ({
+      title: str(g?.title, 100), text: str(g?.explanation_de, 900),
+      examples: (Array.isArray(g?.examples) ? g.examples : []).map(x => ({ it: str(x?.it, 200), de: str(x?.de, 200) })).filter(x => x.it),
+    })).filter(g => g.title && g.text),
+    verbs: (Array.isArray(raw.conjugations) ? raw.conjugations : []).map(c => ({
+      inf: str(c?.infinitive, 40), de: str(c?.de, 60), forms: (c?.forms || []).map(f => str(f, 40)),
+    })).filter(c => c.inf && c.forms.length === 6 && c.forms.every(Boolean)),
+    stories: story ? [story] : [],
+    culture: culture ? { title: culture.title, it: culture.it, de: culture.de } : null,
+    pool: cleanExercises(raw.exercises),
+  };
+}
+
+function mergeMore(unit, raw) {
+  const have = new Set(unit.vocab.map(v => v.it.toLowerCase()));
+  const nv = cleanVocab(raw.new_vocab).filter(v => !have.has(v.it.toLowerCase())).map(v => ({ ...v, isNew: true }));
+  unit.vocab.push(...nv);
+  const story = cleanStory(raw.story), culture = cleanStory(raw.culture);
+  if (story) (unit.stories || (unit.stories = [])).unshift(story);
+  if (culture) unit.culture = { title: culture.title, it: culture.it, de: culture.de };
+  const ex = cleanExercises(raw.exercises);
+  unit.pool.push(...ex);
+  return { words: nv.length, exercises: ex.length, story: !!story };
+}
+
+// Lektion ohne KI aus einer getippten Liste "italienisch = deutsch".
+function unitFromText(title, text) {
+  const vocab = [];
+  for (const line of text.split('\n')) {
+    const m = line.split(/\s*[=–\-:;\t]\s*/);
+    if (m.length >= 2 && m[0].trim() && m[1].trim()) vocab.push({ it: m[0].trim(), de: m.slice(1).join(' ').trim(), emoji: '', ex_it: '', ex_de: '' });
+  }
+  return { id: 'u' + Date.now().toString(36), created: Date.now(), emoji: '✏️', title: title || 'Eigene Wörter', summary: 'Selbst eingetragene Wörter.', vocab, grammar: [], verbs: [], stories: [], culture: null, pool: [] };
+}
+
+// ---- app.js ----
+
+const app = document.getElementById('app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
+const AVATARS = ['🌻', '🍋', '🫒', '🍷', '⛵', '🎻', '🦉', '🐈', '🌷', '☕'];
+
+let view = { name: 'home' };
+let S = null;        // laufende Lerneinheit
+let M = null;        // Memory-Spiel
+let photos = [];     // ausgewählte Fotos (verkleinert, nur im Arbeitsspeicher)
+let lastSummary = null;
+
+function go(name, params = {}) { view = { name, ...params }; render(); window.scrollTo(0, 0); }
+
+// ---------- Sprache: Vorlesen und Zuhören ----------
+let voices = [];
+const loadVoices = () => { try { voices = speechSynthesis.getVoices(); } catch (e) { /* nicht verfügbar */ } };
+if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+function speak(text, slow) {
+  if (!('speechSynthesis' in window) || !text) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/___/g, ' '));
+    u.lang = 'it-IT';
+    const v = voices.find(x => /^it[-_]/i.test(x.lang) && x.localService) || voices.find(x => /^it[-_]/i.test(x.lang));
+    if (v) u.voice = v;
+    u.rate = slow ? 0.55 : (profile()?.prefs.rate || 0.85);
+    speechSynthesis.speak(u);
+  } catch (e) { /* Vorlesen ist optional */ }
+}
+
+// In der eingebetteten Ansicht auf claude.ai ist das Mikrofon gesperrt, dort wird das Nachsprechen selbst bestätigt.
+const SR = window.claude ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+let rec = null;
+
+let actx = null;
+function ding(ok) {
+  if (!profile()?.prefs.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime;
+    (ok ? [660, 880] : [330]).forEach((f, i) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.frequency.value = f; o.type = 'sine';
+      g.gain.setValueAtTime(0.0001, t + i * 0.11);
+      g.gain.exponentialRampToValueAtTime(0.12, t + i * 0.11 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.11 + 0.25);
+      o.connect(g).connect(actx.destination); o.start(t + i * 0.11); o.stop(t + i * 0.11 + 0.3);
+    });
+  } catch (e) { /* Töne sind optional */ }
+}
+
+// ---------- Hinweise ----------
+function toast(msg, ms = 3200) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg; t.setAttribute('role', 'status');
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+let busyTimer = null;
+function busy(messages) {
+  unbusy();
+  const el = document.createElement('div');
+  el.id = 'busy';
+  el.innerHTML = `<div class="busy-box"><div class="spinner"></div><p id="busy-msg">${esc(messages[0])}</p><p class="muted">Das kann bis zu einer Minute dauern. Bitte die App geöffnet lassen.</p></div>`;
+  document.body.appendChild(el);
+  let i = 0;
+  busyTimer = setInterval(() => { i = (i + 1) % messages.length; const m = document.getElementById('busy-msg'); if (m) m.textContent = messages[i]; }, 3500);
+}
+function unbusy() { clearInterval(busyTimer); document.getElementById('busy')?.remove(); }
+
+// Eigene Rückfrage, weil confirm() nicht in jeder Umgebung angezeigt wird.
+function confirmBox(msg, yes = 'Ja') {
+  return new Promise(res => {
+    const el = document.createElement('div');
+    el.id = 'confirm';
+    el.innerHTML = `<div class="busy-box" role="alertdialog" aria-modal="true"><p>${esc(msg)}</p><button class="btn primary" data-y>${esc(yes)}</button><button class="btn ghost" data-n>Abbrechen</button></div>`;
+    document.body.appendChild(el);
+    el.addEventListener('click', e => { const y = e.target.closest('[data-y]'), n = e.target.closest('[data-n]'); if (!y && !n) return; el.remove(); res(!!y); });
+  });
+}
+const weakOf = (u, p) => u.vocab.filter(v => { const s = p.items[wordId(v.it)]; return s && s.ko > s.ok; }).map(v => v.it).slice(0, 10);
+const aiStatus = () => ({ claude: '✓ Verbunden mit dem Claude-Konto. Es entstehen keine zusätzlichen Kosten.', key: '✓ Eigener API-Schlüssel ist eingerichtet.', none: 'Kein direkter KI-Zugang. Die App funktioniert trotzdem kostenlos über die Claude-App (siehe „Unterricht“).' }[aiMode()]);
+const pasteBlock = (kind, id, title) => `<section class="card accent"><h2>${title}</h2>
+  <ol class="steps"><li>Tippen Sie auf „Anleitung kopieren“.</li><li>Öffnen Sie die Claude-App${kind === 'photo' ? ', fügen Sie dort Ihre Fotos hinzu,' : ''} fügen Sie die Anleitung ein und senden Sie die Nachricht ab.</li><li>Kopieren Sie die Antwort von Claude vollständig und fügen Sie sie unten ein.</li></ol>
+  <button class="btn primary" data-act="copyPrompt" data-kind="${kind}" data-id="${id || ''}">📋 Anleitung kopieren</button>
+  <details id="promptdetails"><summary>Anleitung anzeigen</summary><textarea id="promptbox" readonly rows="6"></textarea></details>
+  <label for="pasted">Antwort von Claude</label>
+  <textarea id="pasted" rows="5" placeholder="Antwort hier einfügen" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+  <button class="btn primary" data-act="pasteAnswer" data-kind="${kind}" data-id="${id || ''}">${kind === 'photo' ? 'Lektion erstellen' : 'Aufgaben hinzufügen'}</button></section>`;
+
+// ---------- Bausteine ----------
+const sayBtn = (text, cls = '') => `<button class="say ${cls}" data-act="say" data-text="${esc(text)}" aria-label="Vorlesen">🔊</button>`;
+const levelName = p => LEVELS[Math.max(1, Math.min(5, Math.round(p.level))) - 1];
+
+function tabbar(active) {
+  const tabs = [['home', '🏠', 'Heute'], ['units', '📒', 'Unterricht'], ['games', '🎲', 'Spiele'], ['progress', '🏅', 'Erfolge'], ['settings', '⚙️', 'Mehr']];
+  return `<nav class="tabbar">${tabs.map(([n, e, l]) => `<button data-act="go" data-to="${n}" class="${active === n ? 'on' : ''}" ${active === n ? 'aria-current="page"' : ''}><span>${e}</span>${l}</button>`).join('')}</nav>`;
+}
+
+function unitProgress(p, u) {
+  if (!u.vocab.length) return 0;
+  return Math.round(100 * u.vocab.filter(v => (p.items[wordId(v.it)]?.box || 0) >= 3).length / u.vocab.length);
+}
+
+// ---------- Ansichten ----------
+const views = {
+  profiles() {
+    return `<main class="page center">
+      <div class="logo">🇮🇹</div><h1>Parliamo!</h1>
+      <p class="lead">${state.profiles.length ? 'Wer lernt heute?' : 'Willkommen! Wer möchte Italienisch lernen?'}</p>
+      <div class="stack">${state.profiles.map(p => `<button class="btn big ghost" data-act="pickProfile" data-id="${p.id}"><span class="av">${p.avatar}</span> ${esc(p.name)}</button>`).join('')}</div>
+      <div class="card">
+        <h2>Neue Person anlegen</h2>
+        <label for="pname">Vorname</label>
+        <input id="pname" type="text" maxlength="20" autocomplete="off" placeholder="z. B. Maria">
+        <p class="label">Bild auswählen</p>
+        <div class="avatars">${AVATARS.map((a, i) => `<button class="avatar ${i === (view.av || 0) ? 'on' : ''}" data-act="pickAvatar" data-i="${i}" aria-label="Bild ${i + 1}">${a}</button>`).join('')}</div>
+        <button class="btn primary" data-act="addProfile">Los geht's</button>
+      </div>
+    </main>`;
+  },
+
+  home(p) {
+    const s = stats(p), today = p.days[dayKey()] || 0, pct = Math.min(100, Math.round(100 * today / p.prefs.goal));
+    const words = collectWords(null).filter(w => w.ex_it), tip = words[Math.floor(Date.now() / 864e5) % words.length];
+    const own = state.units[0];
+    const h = new Date().getHours(), hello = h < 11 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera';
+    return `<main class="page">
+      <header class="top">
+        <button class="who" data-act="go" data-to="profiles" aria-label="Person wechseln"><span class="av">${p.avatar}</span></button>
+        <div><p class="hello">${hello},</p><h1>${esc(p.name)}!</h1></div>
+        <div class="streak" aria-label="Lernserie ${liveStreak(p)} Tage">🔥 ${liveStreak(p)}</div>
+      </header>
+      <section class="card goal">
+        <div class="ring" style="--p:${pct}"><b>${pct}%</b></div>
+        <div><h2>Tagesziel</h2><p>${today} von ${p.prefs.goal} Punkten${pct >= 100 ? '. Geschafft, bravo! 🎉' : ''}</p></div>
+      </section>
+      <button class="btn primary huge" data-act="start" data-mode="mix">▶ ${today ? 'Weiterlernen' : 'Heute lernen'}</button>
+      ${s.due ? `<button class="btn ghost" data-act="start" data-mode="review">🔁 ${s.due} ${s.due === 1 ? 'Wort wartet' : 'Wörter warten'} auf Wiederholung</button>` : ''}
+      ${own ? `<section class="card tap" data-act="openUnit" data-id="${own.id}"><p class="label">Aus dem letzten Unterricht</p><h2>${esc(own.emoji)} ${esc(own.title)}</h2><p class="muted">Antippen zum Üben</p></section>`
+        : `<section class="card accent"><h2>📷 Unterlagen aus dem Unterricht</h2><p>Fotografieren Sie Arbeitsblätter oder Notizen. Daraus entstehen passende Übungen.</p><button class="btn primary" data-act="go" data-to="upload">Fotos hinzufügen</button></section>`}
+      ${tip ? `<section class="card"><p class="label">Satz des Tages</p><div class="row"><p class="it">${esc(tip.ex_it)}</p>${sayBtn(tip.ex_it)}</div><p class="muted">${esc(tip.ex_de)}</p></section>` : ''}
+    </main>${tabbar('home')}`;
+  },
+
+  units(p) {
+    const row = u => `<button class="unit" data-act="openUnit" data-id="${u.id}"><span class="uemoji">${esc(u.emoji)}</span><span class="grow"><b>${esc(u.title)}</b><small>${u.vocab.length} Wörter${u.created ? ' · ' + new Date(u.created).toLocaleDateString('de-DE') : ''}</small><span class="bar"><i style="width:${unitProgress(p, u)}%"></i></span></span><span class="chev">›</span></button>`;
+    return `<main class="page">
+      <h1>Mein Unterricht</h1>
+      <button class="btn primary huge" data-act="go" data-to="upload">📷 Neue Unterlagen hinzufügen</button>
+      <h2>Eigene Lektionen</h2>
+      ${state.units.length ? state.units.map(row).join('') : '<p class="muted">Noch keine eigenen Lektionen. Fotografieren Sie die Unterlagen aus Ihrer letzten Stunde.</p>'}
+      <h2>Grundlagen</h2>
+      ${STARTER.map(row).join('')}
+    </main>${tabbar('units')}`;
+  },
+
+  unit(p) {
+    const u = unitById(view.id);
+    if (!u) return views.units(p);
+    const dots = v => { const b = p.items[wordId(v.it)]?.box ?? -1; return `<span class="dots" aria-label="Lernstand">${[1, 3, 5].map(n => `<i class="${b >= n ? 'on' : ''}"></i>`).join('')}</span>`; };
+    return `<main class="page">
+      <button class="back" data-act="go" data-to="units">‹ Zurück</button>
+      <h1>${esc(u.emoji)} ${esc(u.title)}</h1>
+      <p>${esc(u.summary)}</p>
+      <button class="btn primary huge" data-act="start" data-mode="mix" data-unit="${u.id}">▶ Diese Lektion üben</button>
+      ${(u.stories || []).map((s, i) => `<button class="btn ghost" data-act="story" data-id="${u.id}" data-i="${i}">📖 Geschichte: ${esc(s.title)}</button>`).join('')}
+      ${u.builtin ? '' : `<button class="btn ghost" data-act="more" data-id="${u.id}">✨ Neue, weiterführende Aufgaben erzeugen</button>`}
+      ${(u.grammar || []).map(g => `<section class="card"><p class="label">Grammatik</p><h2>${esc(g.title)}</h2><p>${esc(g.text)}</p>${g.examples.map(x => `<div class="row ex"><div class="grow"><p class="it">${esc(x.it)}</p><p class="muted">${esc(x.de)}</p></div>${sayBtn(x.it)}</div>`).join('')}</section>`).join('')}
+      ${(u.verbs || []).map(v => `<section class="card"><p class="label">Verb</p><h2>${esc(v.inf)} <small>${esc(v.de)}</small></h2><table class="conj">${v.forms.map((f, i) => `<tr><td>${PERSONS[i]}</td><td><b>${esc(f)}</b></td><td>${sayBtn(PERSONS[i].split(' / ')[0] + ' ' + f, 'sm')}</td></tr>`).join('')}</table></section>`).join('')}
+      ${u.culture ? `<section class="card accent"><p class="label">Italien entdecken</p><h2>${esc(u.culture.title)}</h2><div class="row"><p class="it grow">${esc(u.culture.it)}</p>${sayBtn(u.culture.it)}</div><details><summary>Übersetzung zeigen</summary><p>${esc(u.culture.de)}</p></details></section>` : ''}
+      <h2>Wörter (${u.vocab.length})</h2>
+      <div class="words">${u.vocab.map((v, i) => `<div class="word"><button class="grow wbtn" data-act="say" data-text="${esc(v.it)}"><span class="wemoji">${esc(v.emoji || '🔊')}</span><span><b>${esc(v.it)}</b>${v.isNew ? ' <em class="tag">neu</em>' : ''}<small>${esc(v.de)}</small></span></button>${dots(v)}${view.edit ? `<button class="del" data-act="delWord" data-i="${i}" aria-label="Wort entfernen">✕</button>` : ''}</div>`).join('')}</div>
+      ${u.builtin ? '' : `<div class="stack"><button class="btn ghost" data-act="toggleEdit">${view.edit ? 'Fertig' : '✏️ Falsch erkannte Wörter entfernen'}</button><button class="btn danger" data-act="delUnit" data-id="${u.id}">Lektion löschen</button></div>`}
+    </main>${tabbar('units')}`;
+  },
+
+  upload() {
+    const direct = canSendPhotos();
+    return `<main class="page">
+      <button class="back" data-act="go" data-to="units">‹ Zurück</button>
+      <h1>Neue Unterlagen</h1>
+      <p>Fotografieren Sie Arbeitsblätter, Grammatikübersichten oder Ihre Notizen aus der letzten Stunde. Achten Sie auf gutes Licht und darauf, dass das ganze Blatt zu sehen ist.</p>
+      ${direct ? `<p class="status ok">${aiStatus()}</p>
+      <label class="btn primary huge filebtn">📷 Foto aufnehmen<input type="file" accept="image/*" capture="environment" data-in="photos"></label>
+      <label class="btn ghost filebtn">🖼️ Aus meinen Fotos wählen<input type="file" accept="image/*" multiple data-in="photos"></label>
+      ${photos.length ? `<div class="thumbs">${photos.map((d, i) => `<div class="thumb"><img src="${d}" alt="Foto ${i + 1}"><button data-act="rmPhoto" data-i="${i}" aria-label="Foto ${i + 1} entfernen">✕</button></div>`).join('')}</div>
+        <label for="note">Worum ging es in der Stunde? (freiwillig)</label>
+        <input id="note" type="text" maxlength="200" placeholder="z. B. Einkaufen auf dem Markt">
+        <button class="btn primary huge" data-act="analyse">✨ Lektion daraus erstellen</button>` : ''}
+      <details><summary>Es klappt nicht? Der Weg über die Claude-App</summary>${pasteBlock('photo', '', 'Über die Claude-App')}</details>`
+      : pasteBlock('photo', '', 'So entsteht aus Ihren Fotos eine Lektion')}
+      <details class="card"><summary>Wörter lieber selbst eintippen</summary>
+        <label for="mtitle">Titel</label><input id="mtitle" type="text" maxlength="60" placeholder="z. B. Stunde vom Dienstag">
+        <label for="mtext">Pro Zeile ein Wort: italienisch = deutsch</label>
+        <textarea id="mtext" rows="6" placeholder="la finestra = das Fenster&#10;aprire = öffnen" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+        <button class="btn ghost" data-act="manual">Lektion anlegen</button>
+      </details>
+    </main>${tabbar('units')}`;
+  },
+
+  pasteMore() {
+    const u = unitById(view.id);
+    return `<main class="page"><button class="back" data-act="openUnit" data-id="${u.id}">‹ Zurück</button><h1>Neue Aufgaben</h1><p>Zu „${esc(u.title)}“ entstehen neue, weiterführende Aufgaben, passend zu Ihrem Niveau.</p>${pasteBlock('more', u.id, 'Über die Claude-App')}</main>${tabbar('units')}`;
+  },
+
+  games(p) {
+    const g = (act, attrs, e, t, d) => `<button class="game" data-act="${act}" ${attrs}><span>${e}</span><b>${t}</b><small>${d}</small></button>`;
+    return `<main class="page">
+      <h1>Spiele und Training</h1>
+      <p>Kurze Übungen für zwischendurch. Jede dauert nur wenige Minuten.</p>
+      <div class="games">
+        ${g('memory', '', '🃏', 'Memory', 'Wortpaare finden')}
+        ${g('start', 'data-mode="verbs"', '🔤', 'Verb-Trainer', 'Verbformen üben')}
+        ${g('start', 'data-mode="listen"', '👂', 'Hör-Training', 'Zuhören und verstehen')}
+        ${g('start', 'data-mode="order"', '🧩', 'Satzbau', 'Wörter in die richtige Reihenfolge')}
+        ${p.prefs.speakEx ? g('start', 'data-mode="speak"', '🎤', 'Aussprache', 'Laut nachsprechen') : ''}
+        ${g('start', 'data-mode="review"', '🔁', 'Wiederholen', 'Gelernte Wörter auffrischen')}
+      </div>
+    </main>${tabbar('games')}`;
+  },
+
+  memory() {
+    return `<main class="page session">
+      <header class="shead"><button class="close" data-act="go" data-to="games" aria-label="Beenden">✕</button><b>Memory</b><span class="muted">${M.moves} Züge</span></header>
+      <p class="muted center">Finden Sie das italienische Wort und seine deutsche Bedeutung.</p>
+      <div class="memory">${M.cards.map((c, i) => {
+        const open = M.open.includes(i) || M.found.has(c.pair);
+        return `<button class="mcard ${open ? 'open' : ''} ${M.found.has(c.pair) ? 'found' : ''} ${c.lang}" data-act="flip" data-i="${i}" ${open ? '' : 'aria-label="Verdeckte Karte"'}>${open ? esc(c.text) : '?'}</button>`;
+      }).join('')}</div>
+      ${M.found.size === M.cards.length / 2 ? `<div class="card center"><h2>🎉 Geschafft in ${M.moves} Zügen!</h2><p>+20 Punkte</p><button class="btn primary" data-act="memory">Noch einmal</button><button class="btn ghost" data-act="go" data-to="games">Zurück</button></div>` : ''}
+    </main>`;
+  },
+
+  progress(p) {
+    const s = stats(p), acc = p.answers ? Math.round(100 * p.correct / p.answers) : 0;
+    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(Date.now() - (6 - i) * 864e5); return { l: d.toLocaleDateString('de-DE', { weekday: 'short' }), xp: p.days[dayKey(d)] || 0 }; });
+    const max = Math.max(p.prefs.goal, ...days.map(d => d.xp));
+    const lv = levelName(p);
+    return `<main class="page">
+      <h1>Meine Erfolge</h1>
+      <div class="tiles">
+        <div class="tile"><b>🔥 ${liveStreak(p)}</b><small>Tage in Folge</small></div>
+        <div class="tile"><b>⭐ ${p.xp}</b><small>Punkte</small></div>
+        <div class="tile"><b>📚 ${s.mastered}</b><small>Wörter sicher</small></div>
+        <div class="tile"><b>🌱 ${s.learning}</b><small>Wörter in Arbeit</small></div>
+        <div class="tile"><b>🎯 ${acc}%</b><small>richtig beantwortet</small></div>
+        <div class="tile"><b>🏆 ${p.best}</b><small>längste Serie</small></div>
+      </div>
+      <section class="card"><h2>Diese Woche</h2>
+        <div class="chart" role="img" aria-label="Punkte der letzten sieben Tage">${days.map(d => `<div class="col"><span class="val">${d.xp || ''}</span><i style="height:${Math.round(100 * d.xp / max)}%" class="${d.xp >= p.prefs.goal ? 'full' : ''}"></i><small>${d.l}</small></div>`).join('')}</div>
+      </section>
+      <section class="card"><h2>Mein Niveau</h2>
+        <div class="lvl">${LEVELS.map(l => `<i class="${l.n <= lv.n ? 'on' : ''}"></i>`).join('')}</div>
+        <p><b>Stufe ${lv.n} von 5: ${lv.name}</b></p>
+        <p class="muted">${p.auto ? 'Die Aufgaben passen sich automatisch an: Bei vielen richtigen Antworten werden sie anspruchsvoller, bei Fehlern wieder leichter.' : 'Die Stufe ist fest eingestellt (siehe „Mehr“).'}</p>
+      </section>
+      <h2>Abzeichen</h2>
+      <div class="badges">${BADGES.map(b => `<div class="badge ${p.badges.includes(b.id) ? 'on' : ''}"><span>${b.emoji}</span><b>${b.name}</b><small>${b.text}</small></div>`).join('')}</div>
+    </main>${tabbar('progress')}`;
+  },
+
+  settings(p) {
+    const seg = (key, opts, cur) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button data-act="pref" data-k="${key}" data-v="${v}" class="${String(cur) === String(v) ? 'on' : ''}" aria-pressed="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
+    const st = state.settings;
+    return `<main class="page">
+      <h1>Einstellungen</h1>
+      <section class="card"><h2>${p.avatar} ${esc(p.name)}</h2><button class="btn ghost" data-act="go" data-to="profiles">Person wechseln oder hinzufügen</button></section>
+      <section class="card"><h2>Darstellung und Ton</h2>
+        <p class="label">Schriftgröße</p>${seg('font', [[1, 'Normal'], [1.15, 'Groß'], [1.3, 'Sehr groß']], p.prefs.font)}
+        <p class="label">Vorlesetempo</p>${seg('rate', [[0.65, 'Langsam'], [0.85, 'Normal'], [1, 'Schnell']], p.prefs.rate)}
+        <button class="btn ghost" data-act="say" data-text="Buongiorno! Come sta oggi?">🔊 Probe hören</button>
+        <p class="label">Töne bei richtig und falsch</p>${seg('sound', [[true, 'An'], [false, 'Aus']], p.prefs.sound)}
+      </section>
+      <section class="card"><h2>Lernen</h2>
+        <p class="label">Tagesziel</p>${seg('goal', [[30, 'Gemütlich'], [50, 'Normal'], [80, 'Fleißig']], p.prefs.goal)}
+        <p class="label">Länge einer Lerneinheit</p>${seg('len', [[6, 'Kurz'], [10, 'Mittel'], [14, 'Lang']], p.prefs.len)}
+        <p class="label">Ausspracheübungen</p>${seg('speakEx', [[true, 'An'], [false, 'Aus']], p.prefs.speakEx)}
+        <p class="label">Schwierigkeit</p>${seg('auto', [[true, 'Automatisch anpassen'], [false, 'Selbst festlegen']], p.auto)}
+        ${seg('level', LEVELS.map(l => [l.n, l.n]), Math.round(p.level))}
+        <p class="muted">Aktuell Stufe ${levelName(p).n}: ${levelName(p).name}</p>
+      </section>
+      <section class="card"><h2>KI-Zugang</h2>
+        <p class="status ${aiReady() ? 'ok' : ''}">${aiStatus()}</p>
+        <details><summary>Für Fortgeschrittene: eigener API-Schlüssel (kostenpflichtig, nicht nötig)</summary>
+        <label for="apikey">Claude-API-Schlüssel</label>
+        <input id="apikey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-…" value="${esc(st.apiKey)}" data-in="apiKey">
+        <label for="model">Modell</label>
+        <select id="model" data-in="model">${[['claude-opus-5-5', 'Claude Opus 5.5 (beste Qualität)'], ['claude-sonnet-5-5', 'Claude Sonnet 5.5 (günstiger)'], ['claude-haiku-5-5', 'Claude Haiku 5.5 (am günstigsten)']].map(([v, l]) => `<option value="${v}" ${st.model === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <label for="proxy">Proxy-Adresse (ersetzt den Schlüssel)</label><input id="proxy" type="url" autocapitalize="off" placeholder="https://…" value="${esc(st.proxyUrl)}" data-in="proxyUrl"></details>
+      </section>
+      <section class="card"><h2>Schnell wiederfinden</h2><p>Speichern Sie diese Seite als Lesezeichen oder legen Sie sie über das Teilen-Symbol auf den Home-Bildschirm. Öffnen Sie sie immer auf demselben Weg, denn der Lernstand ist an diesen Ort gebunden.</p></section>
+      <section class="card"><h2>Daten</h2>
+        <p class="muted">Alle Lernstände liegen nur auf diesem Gerät. Eine Sicherung schützt vor Verlust und erlaubt den Umzug auf ein anderes Gerät.</p>
+        <button class="btn ghost" data-act="export">Sicherung speichern</button>
+        <label class="btn ghost filebtn">Sicherung einspielen<input type="file" accept="application/json,.json" data-in="import"></label>
+        <button class="btn danger" data-act="resetProfile">Lernstand von ${esc(p.name)} zurücksetzen</button>
+      </section>
+    </main>${tabbar('settings')}`;
+  },
+
+  session(p) { return sessionView(p); },
+
+  summary(p) {
+    const r = lastSummary, pct = r.total ? Math.round(100 * r.right / r.total) : 100;
+    const head = pct >= 90 ? ['🎉', 'Fantastico!'] : pct >= 60 ? ['👏', 'Molto bene!'] : ['💪', 'Gut, dass Sie dranbleiben!'];
+    return `<main class="page center summary">
+      <div class="confetti" aria-hidden="true">${'🎊🇮🇹⭐🎉🍋'.repeat(3)}</div>
+      <div class="logo">${head[0]}</div><h1>${head[1]}</h1>
+      <div class="tiles">
+        <div class="tile"><b>+${r.xp}</b><small>Punkte</small></div>
+        <div class="tile"><b>${r.right}/${r.total}</b><small>beim ersten Mal richtig</small></div>
+        <div class="tile"><b>🔥 ${liveStreak(p)}</b><small>Tage in Folge</small></div>
+      </div>
+      ${r.levelMsg ? `<p class="card">${r.levelMsg}</p>` : ''}
+      ${r.badges.map(b => `<div class="card accent"><h2>${b.emoji} Neues Abzeichen: ${b.name}</h2><p>${b.text}</p></div>`).join('')}
+      ${r.wrong.length ? `<section class="card left"><h2>Zum Merken</h2>${r.wrong.map(w => `<div class="row ex"><p class="it grow">${esc(w)}</p>${sayBtn(w, 'sm')}</div>`).join('')}</section>` : ''}
+      <button class="btn primary huge" data-act="again">Noch eine Runde</button>
+      <button class="btn ghost" data-act="go" data-to="home">Fertig für jetzt</button>
+    </main>`;
+  },
+};
+
+// ---------- Lerneinheit ----------
+function startSession(title, list, opts = {}) {
+  if (!list.length) { toast('Dafür gibt es noch nicht genug Wörter. Lernen Sie zuerst ein paar Wörter unter „Heute“.'); return; }
+  S = { title, list, i: 0, right: 0, total: 0, xp: 0, wrong: [], opts, startLevel: profile().level };
+  resetAnswer();
+  go('session');
+}
+
+function resetAnswer() {
+  Object.assign(S, { phase: 'ask', sel: null, text: '', placed: [], fb: null, heard: '', listening: false, showDe: false, m: { left: null, done: [], miss: false, bad: null } });
+  const ex = S.list[S.i];
+  if (ex?.k === 'match') S.m.right = shuffle(ex.pairs.map((_, i) => i));
+  S.spoken = false;
+}
+
+function autoSpeak() {
+  const ex = S?.list[S.i];
+  if (!ex || S.phase !== 'ask' || S.spoken) return;
+  S.spoken = true;
+  const t = ex.k === 'card' ? ex.w.it : ex.k === 'listen' ? ex.audio : ex.k === 'mc' && ex.big && ex.say ? ex.say : ex.k === 'speak' ? ex.it : '';
+  if (t) setTimeout(() => speak(t), 250);
+}
+
+function sessionView(p) {
+  const ex = S.list[S.i], done = Math.round(100 * S.i / S.list.length);
+  const opts = (list) => `<div class="opts">${list.map((o, i) => {
+    let c = S.sel === i ? 'sel' : '';
+    if (S.phase === 'fb') c = i === ex.ans || o === ex.ans ? 'good' : S.sel === i ? 'bad' : '';
+    return `<button class="opt ${c}" data-act="sel" data-i="${i}" ${S.phase === 'fb' ? 'disabled' : ''}>${esc(o)}</button>`;
+  }).join('')}</div>`;
+  const input = (ph) => `<input id="answer" class="answer" type="text" lang="it" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${ph}" value="${esc(S.text)}" data-in="text" ${S.phase === 'fb' ? 'disabled' : ''}>
+    <div class="accents">${['à', 'è', 'é', 'ì', 'ò', 'ù'].map(a => `<button data-act="accent" data-c="${a}" ${S.phase === 'fb' ? 'disabled' : ''}>${a}</button>`).join('')}</div>`;
+  let body = '', canCheck = false, footer = null;
+
+  if (ex.k === 'card') {
+    const w = ex.w;
+    body = `<p class="task">Neues Wort</p><div class="flash"><div class="femoji">${esc(w.emoji || '🇮🇹')}</div><div class="row centerrow"><h2 class="it xl">${esc(w.it)}</h2>${sayBtn(w.it)}</div><p class="de">${esc(w.de)}</p>
+      ${w.ex_it ? `<div class="example"><div class="row"><p class="it grow">${esc(w.ex_it)}</p>${sayBtn(w.ex_it, 'sm')}</div><p class="muted">${esc(w.ex_de)}</p></div>` : ''}</div>`;
+    footer = `<button class="btn primary huge" data-act="next">Verstanden, weiter</button>`;
+  } else if (ex.k === 'read') {
+    body = `<p class="task">Lesen und zuhören</p><div class="flash left"><h2>${esc(ex.title)}</h2><p class="it story">${esc(ex.it)}</p>
+      <div class="row"><button class="btn ghost" data-act="say" data-text="${esc(ex.it)}">🔊 Vorlesen</button><button class="btn ghost" data-act="saySlow" data-text="${esc(ex.it)}">🐢 Langsam</button></div>
+      ${S.showDe ? `<p class="muted">${esc(ex.de)}</p>` : `<button class="btn ghost" data-act="showDe">Übersetzung zeigen</button>`}</div>`;
+    footer = `<button class="btn primary huge" data-act="next">Weiter${S.list[S.i + 1] ? ' zu den Fragen' : ''}</button>`;
+  } else if (ex.k === 'mc') {
+    body = `<p class="task">${esc(ex.sub || 'Wählen Sie die richtige Antwort')}</p>
+      <div class="prompt">${ex.emoji ? `<span class="pemoji">${esc(ex.emoji)}</span>` : ''}<h2 class="${ex.big ? 'it xl' : ''}">${esc(ex.q)}</h2>${ex.say ? sayBtn(ex.say) : ''}</div>${opts(ex.opts)}`;
+    canCheck = S.sel !== null;
+  } else if (ex.k === 'listen') {
+    body = `<p class="task">Was hören Sie?</p><div class="prompt col"><button class="say giant" data-act="say" data-text="${esc(ex.audio)}" aria-label="Noch einmal anhören">🔊</button><button class="btn ghost slim" data-act="saySlow" data-text="${esc(ex.audio)}">🐢 Langsam anhören</button>${S.phase === 'fb' ? `<h2 class="it">${esc(ex.reveal)}</h2>` : ''}</div>${opts(ex.opts)}`;
+    canCheck = S.sel !== null;
+  } else if (ex.k === 'cloze') {
+    const fill = S.phase === 'fb' ? ex.ans : ex.opts ? (S.sel !== null ? ex.opts[S.sel] : '') : S.text;
+    const [a, b] = ex.sent.split('___');
+    body = `<p class="task">${esc(ex.title || 'Was passt in die Lücke?')}</p><div class="prompt col"><h2 class="it">${esc(a)}<span class="gap ${S.phase === 'fb' ? 'filled' : ''}">${esc(fill) || '&nbsp;'}</span>${esc(b || '')}</h2>${ex.de ? `<p class="muted">${esc(ex.de)}</p>` : ''}</div>${ex.opts ? opts(ex.opts) : input('Fehlendes Wort')}`;
+    canCheck = ex.opts ? S.sel !== null : S.text.trim() !== '';
+  } else if (ex.k === 'order') {
+    const used = new Set(S.placed);
+    body = `<p class="task">Bilden Sie den Satz auf Italienisch</p><div class="prompt"><h2>${esc(ex.de)}</h2></div>
+      <div class="line" aria-label="Ihr Satz">${S.placed.map((bi, pos) => `<button class="tok" data-act="unplace" data-pos="${pos}" ${S.phase === 'fb' ? 'disabled' : ''}>${esc(ex.bank[bi])}</button>`).join('') || '<span class="muted">Tippen Sie unten auf die Wörter</span>'}</div>
+      <div class="bank">${ex.bank.map((t, bi) => `<button class="tok ${used.has(bi) ? 'used' : ''}" data-act="place" data-i="${bi}" ${used.has(bi) || S.phase === 'fb' ? 'disabled' : ''}>${esc(t)}</button>`).join('')}</div>`;
+    canCheck = S.placed.length > 0;
+  } else if (ex.k === 'type') {
+    body = `<p class="task">Schreiben Sie auf Italienisch</p><div class="prompt">${ex.emoji ? `<span class="pemoji">${esc(ex.emoji)}</span>` : ''}<h2>${esc(ex.de)}</h2></div>${input(ex.hint ? `Beginnt mit „${esc(ex.hint)}“` : 'Ihre Antwort')}`;
+    canCheck = S.text.trim() !== '';
+  } else if (ex.k === 'match') {
+    const cell = (side, idx, text) => {
+      const done = S.m.done.includes(idx), sel = side === 'l' && S.m.left === idx, bad = S.m.bad && S.m.bad[side] === idx;
+      return `<button class="opt ${done ? 'good' : ''} ${sel ? 'sel' : ''} ${bad ? 'bad' : ''}" data-act="match" data-side="${side}" data-i="${idx}" ${done ? 'disabled' : ''}>${esc(text)}</button>`;
+    };
+    body = `<p class="task">Was gehört zusammen? Erst links, dann rechts antippen.</p><div class="matchgrid"><div>${ex.pairs.map((pr, i) => cell('l', i, pr[0])).join('')}</div><div>${S.m.right.map(i => cell('r', i, ex.pairs[i][1])).join('')}</div></div>`;
+    footer = S.phase === 'fb' ? null : '';
+  } else if (ex.k === 'speak') {
+    body = `<p class="task">Sprechen Sie laut nach</p><div class="prompt col"><div class="row centerrow"><h2 class="it">${esc(ex.it)}</h2>${sayBtn(ex.it)}</div><p class="muted">${esc(ex.de)}</p>
+      ${SR ? `<button class="mic ${S.listening ? 'on' : ''}" data-act="mic" aria-label="Aufnahme starten">🎤</button><p class="muted">${S.listening ? 'Ich höre zu …' : S.heard ? 'Verstanden: „' + esc(S.heard) + '“' : 'Auf das Mikrofon tippen und sprechen'}</p>` : '<p class="muted">Hören Sie zu und sprechen Sie den Satz zwei- bis dreimal laut nach.</p>'}</div>`;
+    footer = S.phase === 'fb' ? null : `<button class="btn primary huge" data-act="spoke">Ich habe es laut gesprochen</button>`;
+  }
+
+  if (footer === null) {
+    footer = S.phase === 'fb' ? '' : `<button class="btn primary huge" data-act="check" ${canCheck ? '' : 'disabled'}>Prüfen</button>`;
+  }
+  const fb = S.fb;
+  const panel = S.phase === 'fb' && fb ? `<div class="feedback ${fb.ok ? 'ok' : 'no'}" role="status" aria-live="polite">
+      <h2>${fb.ok ? '✓ ' + pick(PRAISE) : pick(COMFORT)}</h2>
+      ${fb.ok ? '' : `<p>Richtig ist: <b class="it">${esc(fb.correct)}</b></p>`}
+      ${fb.note ? `<p>${esc(fb.note)}</p>` : ''}${fb.ok && fb.correct && fb.showCorrect ? `<p class="it">${esc(fb.correct)}</p>` : ''}
+      ${fb.explain ? `<p>${esc(fb.explain)}</p>` : ''}
+      ${fb.ai ? `<p class="aiexp">💡 ${esc(fb.ai)}</p>` : ''}
+      <div class="row">${fb.say ? sayBtn(fb.say) : ''}${!fb.ok && aiReady() && !fb.ai ? `<button class="btn ghost slim" data-act="why">💡 Warum?</button>` : ''}<button class="btn primary grow" data-act="next">Weiter</button></div>
+    </div>` : '';
+
+  return `<main class="page session">
+    <header class="shead"><button class="close" data-act="quit" aria-label="Lerneinheit beenden">✕</button><div class="pbar" role="progressbar" aria-valuenow="${done}" aria-valuemin="0" aria-valuemax="100"><i style="width:${done}%"></i></div><span class="muted">${S.i + 1}/${S.list.length}</span></header>
+    <section class="exercise">${body}</section>
+    <footer class="sfoot">${footer}</footer>${panel}
+  </main>`;
+}
+
+function taskText(ex) {
+  if (ex.k === 'mc') return ex.q; if (ex.k === 'listen') return 'Hörverstehen: ' + ex.audio;
+  if (ex.k === 'cloze') return ex.sent + (ex.de ? ' (' + ex.de + ')' : ''); if (ex.k === 'order' || ex.k === 'type') return 'Übersetze: ' + ex.de;
+  return ex.it || '';
+}
+
+function settle(ok, { correct = '', given = '', note = '', showCorrect = false } = {}) {
+  const p = profile(), ex = S.list[S.i];
+  S.phase = 'fb';
+  S.fb = { ok, correct, given, note, showCorrect, explain: ex.explain || '', say: ex.say || ex.sayAfter || ex.reveal || (ex.k === 'type' ? ex.ans : ''), task: taskText(ex) };
+  if (!ex.retry) { S.total++; if (ok) S.right++; }
+  p.answers++; if (ok) p.correct++;
+  S.xp += ok ? (ex.retry ? 5 : 10) : 2;
+  (ex.items || []).forEach(id => grade(p, id, ok));
+  if (ex.xid) p.done[ex.xid] = (p.done[ex.xid] || 0) + 1;
+  if (p.auto) p.level = Math.max(1, Math.min(5, p.level + (ok ? 0.05 : -0.12)));
+  if (!ok) {
+    if (correct && !S.wrong.includes(correct)) S.wrong.push(correct);
+    if (!ex.retry) S.list.push({ ...ex, retry: true });
+  }
+  ding(ok); save(); render();
+  const say = S.fb.say;
+  if (say && ex.k !== 'listen') setTimeout(() => { if (S && S.list[S.i] === ex) speak(say); }, 350);
+}
+
+function check() {
+  const ex = S.list[S.i];
+  if (ex.k === 'mc' || ex.k === 'listen') settle(S.sel === ex.ans, { correct: ex.opts[ex.ans], given: ex.opts[S.sel] });
+  else if (ex.k === 'cloze') {
+    const full = ex.sent.replace('___', ex.ans);
+    if (ex.opts) settle(ex.opts[S.sel] === ex.ans, { correct: full, given: ex.opts[S.sel] });
+    else { const r = checkTyped(S.text, ex.ans); settle(r.ok, { correct: full, given: S.text, note: r.note, showCorrect: !!r.note }); }
+  } else if (ex.k === 'order') {
+    const given = S.placed.map(i => ex.bank[i]).join(' '), correct = ex.tokens.join(' ');
+    settle(given === correct, { correct, given });
+  } else if (ex.k === 'type') { const r = checkTyped(S.text, ex.ans); settle(r.ok, { correct: ex.ans, given: S.text, note: r.note, showCorrect: !!r.note }); }
+}
+
+function next() {
+  window.speechSynthesis?.cancel?.();
+  S.i++;
+  if (S.i >= S.list.length) return finish();
+  resetAnswer(); render(); window.scrollTo(0, 0);
+}
+
+function awardBadges(p) {
+  const s = stats(p), fresh = BADGES.filter(b => !p.badges.includes(b.id) && b.test(p, s));
+  fresh.forEach(b => p.badges.push(b.id));
+  return fresh;
+}
+
+function finish() {
+  const p = profile(), acc = S.total ? S.right / S.total : 1;
+  const xp = S.xp + 10;
+  p.sessions++;
+  if (S.total >= 4 && S.right === S.total) p.perfect++;
+  if (p.auto && S.total >= 4) p.level = Math.max(1, Math.min(5, p.level + (acc >= 0.9 ? 0.15 : acc < 0.6 ? -0.2 : 0)));
+  touchDay(p, xp);
+  const a = Math.round(S.startLevel), b = Math.round(p.level);
+  const levelMsg = b > a ? `📈 Sie werden besser! Die Aufgaben werden jetzt etwas anspruchsvoller (Stufe ${b}: ${LEVELS[b - 1].name}).`
+    : b < a ? `🌿 Wir gehen einen Schritt zurück und festigen die Grundlagen (Stufe ${b}: ${LEVELS[b - 1].name}). Das ist völlig in Ordnung.` : '';
+  lastSummary = { xp, right: S.right, total: S.total, wrong: S.wrong.slice(0, 6), badges: awardBadges(p), levelMsg, opts: S.opts };
+  save(); S = null; go('summary');
+}
+
+function launch(mode, unitId) {
+  const p = profile();
+  const titles = { mix: 'Lernen', review: 'Wiederholen', listen: 'Hör-Training', order: 'Satzbau', speak: 'Aussprache', verbs: 'Verb-Trainer' };
+  startSession(titles[mode], buildSession(p, { mode, unitIds: unitId ? [unitId] : null }), { mode, unitId });
+}
+
+// ---------- Fotos ----------
+function shrink(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const max = 1568, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Dieses Bild konnte nicht gelesen werden.')); };
+    img.src = url;
+  });
+}
+
+async function addPhotos(files) {
+  for (const f of files) {
+    if (photos.length >= 6) { toast('Bitte höchstens 6 Fotos auf einmal.'); break; }
+    try { photos.push(await shrink(f)); } catch (e) { toast(e.message); }
+  }
+  render();
+}
+
+async function analyse() {
+  const note = document.getElementById('note')?.value || '';
+  busy(['Ich schaue mir die Fotos an …', 'Ich lese die Handschrift …', 'Ich sammle die neuen Wörter …', 'Ich denke mir passende Übungen aus …', 'Ich schreibe eine kleine Geschichte …', 'Gleich fertig …']);
+  try {
+    const unit = toUnit(await analysePhotos(photos, note, profile().level));
+    if (!unit.vocab.length && !unit.pool.length) throw new Error('Auf den Fotos war nichts Italienisches zu erkennen. Bitte bei gutem Licht noch einmal fotografieren.');
+    state.units.unshift(unit); photos = [];
+    awardBadges(profile()); save();
+    go('unit', { id: unit.id });
+    toast('Die neue Lektion ist fertig. Buono studio!');
+  } catch (e) { toast(e.message || 'Das hat leider nicht geklappt.', 6000); }
+  finally { unbusy(); }
+}
+
+async function more(id) {
+  const u = unitById(id), p = profile();
+  if (!aiReady()) { go('pasteMore', { id }); return; }
+  busy(['Ich denke mir neue Aufgaben aus …', 'Ich suche eine neue Alltagssituation …', 'Ich schreibe eine neue Geschichte …', 'Gleich fertig …']);
+  try {
+    const r = mergeMore(u, await moreExercises(u, p.level, weakOf(u, p)));
+    save(); render();
+    toast(`Neu: ${r.exercises} Aufgaben${r.words ? ', ' + r.words + ' Wörter' : ''}${r.story ? ' und eine Geschichte' : ''}.`, 5000);
+  } catch (e) { toast(e.message || 'Das hat leider nicht geklappt.', 6000); }
+  finally { unbusy(); }
+}
+
+// ---------- Memory ----------
+function newMemory() {
+  const p = profile();
+  const known = collectWords(null).filter(w => p.items[w.id] && w.it.length < 22 && w.de.length < 22);
+  const pool = known.length >= 6 ? known : collectWords(null).filter(w => w.it.length < 22 && w.de.length < 22);
+  const words = shuffle(pool).slice(0, 6);
+  M = { moves: 0, open: [], found: new Set(), lock: false, cards: shuffle(words.flatMap((w, i) => [{ pair: i, text: w.it, lang: 'mit' }, { pair: i, text: w.de, lang: 'mde' }])) };
+  go('memory');
+}
+
+function flip(i) {
+  const c = M.cards[i];
+  if (M.lock || M.open.includes(i) || M.found.has(c.pair)) return;
+  M.open.push(i);
+  if (c.lang === 'mit') speak(c.text);
+  if (M.open.length === 2) {
+    M.moves++;
+    const [a, b] = M.open.map(x => M.cards[x]);
+    if (a.pair === b.pair) {
+      M.found.add(a.pair); M.open = []; ding(true);
+      if (M.found.size === M.cards.length / 2) { const p = profile(); p.memory++; touchDay(p, 20); awardBadges(p); save(); }
+    } else { M.lock = true; setTimeout(() => { M.open = []; M.lock = false; if (view.name === 'memory') render(); }, 1400); }
+  }
+  render();
+}
+
+// ---------- Aktionen ----------
+const actions = {
+  go: el => go(el.dataset.to),
+  say: el => speak(el.dataset.text),
+  saySlow: el => speak(el.dataset.text, true),
+  pickAvatar: el => { const n = document.getElementById('pname').value; view.av = +el.dataset.i; render(); document.getElementById('pname').value = n; },
+  addProfile: () => {
+    const name = document.getElementById('pname').value.trim();
+    if (!name) { toast('Bitte einen Vornamen eintragen.'); return; }
+    const p = newProfile(name, AVATARS[view.av || 0]);
+    state.profiles.push(p); state.current = p.id; save(); go('home');
+  },
+  pickProfile: el => { state.current = el.dataset.id; save(); go('home'); },
+  start: el => launch(el.dataset.mode, el.dataset.unit),
+  again: () => { const o = lastSummary.opts; if (o.mode) launch(o.mode, o.unitId); else go('home'); },
+  openUnit: el => go('unit', { id: el.dataset.id }),
+  story: el => { const u = unitById(el.dataset.id); startSession('Geschichte', storyExercises(u.stories[+el.dataset.i]), {}); },
+  more: el => more(el.dataset.id),
+  toggleEdit: () => { view.edit = !view.edit; render(); },
+  delWord: el => { const u = unitById(view.id); u.vocab.splice(+el.dataset.i, 1); save(); render(); },
+  delUnit: async el => { if (await confirmBox('Diese Lektion wirklich löschen?', 'Löschen')) { state.units = state.units.filter(u => u.id !== el.dataset.id); save(); go('units'); } },
+  rmPhoto: el => { photos.splice(+el.dataset.i, 1); render(); },
+  analyse,
+  manual: () => {
+    const u = unitFromText(document.getElementById('mtitle').value.trim(), document.getElementById('mtext').value);
+    if (u.vocab.length < 2) { toast('Bitte mindestens zwei Zeilen in der Form „italienisch = deutsch“ eintragen.'); return; }
+    state.units.unshift(u); awardBadges(profile()); save(); go('unit', { id: u.id });
+  },
+  memory: newMemory,
+  flip: el => flip(+el.dataset.i),
+  pref: el => {
+    const p = profile(), k = el.dataset.k, raw = el.dataset.v, v = raw === 'true' ? true : raw === 'false' ? false : Number(raw);
+    if (k === 'auto') p.auto = v; else if (k === 'level') { p.level = v; p.auto = false; } else p.prefs[k] = v;
+    save(); render();
+  },
+  export: async () => {
+    const json = JSON.stringify({ ...state, settings: { ...state.settings, apiKey: '' } }), name = `parliamo-sicherung-${dayKey()}.json`;
+    try {
+      const dl = await window.claude?.use?.('downloads');
+      if (dl) await dl.save({ filename: name, data: json });
+      else { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name; a.click(); }
+      toast('Sicherung gespeichert.');
+    } catch (e) { toast('Die Sicherung wurde nicht gespeichert.'); }
+  },
+  copyPrompt: async el => {
+    const p = profile(), u = el.dataset.id && unitById(el.dataset.id);
+    const text = copyText(el.dataset.kind === 'more' ? morePrompt(u, p.level, weakOf(u, p)) : photoPrompt('', p.level));
+    const box = document.getElementById('promptbox'); box.value = text;
+    try { await navigator.clipboard.writeText(text); toast('Anleitung kopiert. Jetzt in der Claude-App einfügen.', 5000); }
+    catch (e) { document.getElementById('promptdetails').open = true; box.focus(); box.select(); toast('Bitte den markierten Text von Hand kopieren.', 5000); }
+  },
+  pasteAnswer: el => {
+    const raw = document.getElementById('pasted').value;
+    if (!raw.trim()) { toast('Bitte zuerst die Antwort von Claude einfügen.'); return; }
+    try {
+      const data = parseJSON(raw);
+      if (data.error) throw new Error(String(data.error));
+      if (el.dataset.kind === 'more') {
+        const u = unitById(el.dataset.id), r = mergeMore(u, data);
+        if (!r.exercises && !r.words && !r.story) throw new Error('In der Antwort waren keine Aufgaben zu finden. Bitte die Antwort vollständig kopieren.');
+        save(); go('unit', { id: u.id }); toast(`Neu: ${r.exercises} Aufgaben${r.words ? ', ' + r.words + ' Wörter' : ''}${r.story ? ' und eine Geschichte' : ''}.`, 5000);
+      } else {
+        const unit = toUnit(data);
+        if (!unit.vocab.length && !unit.pool.length) throw new Error('In der Antwort war keine Lektion zu finden. Bitte die Antwort vollständig kopieren.');
+        state.units.unshift(unit); awardBadges(profile()); save(); go('unit', { id: unit.id }); toast('Die neue Lektion ist fertig. Buono studio!');
+      }
+    } catch (e) { toast(e.message.includes('KI') ? 'Die eingefügte Antwort war nicht lesbar. Bitte die Antwort von Claude vollständig kopieren.' : e.message, 6000); }
+  },
+  resetProfile: async () => {
+    if (!await confirmBox('Wirklich alle Punkte und den Lernstand dieser Person löschen?', 'Zurücksetzen')) return;
+    const p = profile(), n = newProfile(p.name, p.avatar);
+    Object.assign(p, n, { id: p.id }); save(); go('home');
+  },
+  // Lerneinheit
+  quit: async () => { if (await confirmBox('Lerneinheit beenden? Die bisherigen Antworten bleiben gespeichert.', 'Beenden')) { window.speechSynthesis?.cancel?.(); S = null; go('home'); } },
+  sel: el => { S.sel = +el.dataset.i; render(); },
+  check, next,
+  showDe: () => { S.showDe = true; render(); },
+  accent: el => { const inp = document.getElementById('answer'); S.text = (inp.value || '') + el.dataset.c; render(); const n = document.getElementById('answer'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); },
+  place: el => { S.placed.push(+el.dataset.i); speak(S.list[S.i].bank[+el.dataset.i]); render(); },
+  unplace: el => { S.placed.splice(+el.dataset.pos, 1); render(); },
+  match: el => {
+    const ex = S.list[S.i], i = +el.dataset.i;
+    if (el.dataset.side === 'l') { S.m.left = i; S.m.bad = null; speak(ex.pairs[i][0]); render(); return; }
+    if (S.m.left === null) { toast('Bitte zuerst links ein Wort antippen.'); return; }
+    if (S.m.left === i) { S.m.done.push(i); S.m.left = null; S.m.bad = null; ding(true); }
+    else { S.m.miss = true; S.m.bad = { l: S.m.left, r: i }; S.m.left = null; ding(false); }
+    if (S.m.done.length === ex.pairs.length) settle(!S.m.miss, { correct: S.m.miss ? ex.pairs.map(p => p.join(' = ')).join(', ') : '' });
+    else render();
+  },
+  spoke: () => settle(true, { note: 'Lautes Sprechen ist die beste Übung.' }),
+  mic: () => {
+    if (!SR || S.listening) return;
+    const ex = S.list[S.i];
+    try {
+      window.speechSynthesis?.cancel?.();
+      rec = new SR(); rec.lang = 'it-IT'; rec.interimResults = false; rec.maxAlternatives = 3;
+      rec.onresult = e => {
+        const alts = Array.from(e.results[0]).map(a => a.transcript);
+        const best = alts.map(t => [similar(t, ex.it), t]).sort((a, b) => b[0] - a[0])[0];
+        S.heard = best[1]; S.listening = false;
+        if (best[0] >= 0.72) settle(true, { note: `Sehr gut ausgesprochen! Verstanden: „${best[1]}“` }); else { render(); toast('Noch nicht ganz. Hören Sie noch einmal zu und versuchen Sie es erneut.'); }
+      };
+      rec.onerror = () => { S.listening = false; render(); toast('Das Mikrofon konnte nicht verwendet werden. Sprechen Sie einfach laut nach und tippen Sie auf den Knopf unten.', 5000); };
+      rec.onend = () => { if (S && S.listening) { S.listening = false; render(); } };
+      S.listening = true; rec.start(); render();
+    } catch (e) { S.listening = false; toast('Das Mikrofon steht hier nicht zur Verfügung.'); }
+  },
+  why: async el => {
+    el.disabled = true; el.textContent = '💡 Einen Moment …';
+    const fb = S.fb;
+    try { fb.ai = await explainMistake(fb.task, fb.given || '(keine Antwort)', fb.correct); if (S && S.fb === fb) render(); }
+    catch (e) { toast(e.message); el.disabled = false; el.textContent = '💡 Warum?'; }
+  },
+};
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const fn = actions[el.dataset.act];
+  if (fn) fn(el, e);
+});
+
+document.addEventListener('input', e => {
+  const k = e.target.dataset?.in;
+  if (k === 'text' && S) {
+    S.text = e.target.value;
+    const b = document.querySelector('[data-act="check"]'); if (b) b.disabled = !S.text.trim();
+    const g = document.querySelector('.gap'); if (g) g.textContent = S.text || ' ';
+  }
+  if (k === 'apiKey' || k === 'proxyUrl') {
+    state.settings[k] = e.target.value.trim(); save();
+    const s = document.querySelector('.status'); if (s) { s.className = 'status ' + (aiReady() ? 'ok' : ''); s.textContent = aiStatus(); }
+  }
+});
+
+document.addEventListener('change', async e => {
+  const k = e.target.dataset?.in;
+  if (k === 'photos') { const files = [...e.target.files]; e.target.value = ''; await addPhotos(files); }
+  if (k === 'model') { state.settings.model = e.target.value; save(); }
+  if (k === 'import') {
+    try {
+      const obj = JSON.parse(await e.target.files[0].text());
+      if (!Array.isArray(obj.profiles)) throw new Error();
+      if (await confirmBox('Die Sicherung ersetzt alle Daten auf diesem Gerät. Fortfahren?', 'Ersetzen')) { replaceState({ ...obj, settings: { ...obj.settings, apiKey: state.settings.apiKey } }); go('profiles'); }
+    } catch (err) { toast('Diese Datei ist keine gültige Sicherung.'); }
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || view.name !== 'session' || !S) return;
+  if (S.phase === 'fb') next();
+  else { const b = document.querySelector('[data-act="check"]'); if (b && !b.disabled) check(); }
+});
+
+function render() {
+  const p = profile();
+  if (!p && view.name !== 'profiles') view = { name: 'profiles' };
+  document.documentElement.style.fontSize = (18 * (p?.prefs.font || 1)) + 'px';
+  if (view.name === 'session' && !S) view = { name: 'home' };
+  if (view.name === 'memory' && !M) view = { name: 'games' };
+  if (view.name === 'summary' && !lastSummary) view = { name: 'home' };
+  app.innerHTML = views[view.name](p);
+  if (view.name === 'session') autoSpeak();
+}
+
+if (!window.claude && 'serviceWorker' in navigator && location.protocol === 'https:' && !document.currentScript) navigator.serviceWorker.register('sw.js').catch(() => {});
+initAI(() => { if (!S && view.name !== 'memory') render(); });
+navigator.storage?.persist?.().catch?.(() => {});
+render();
+
+})();
+</script>
+</body>
+</html>

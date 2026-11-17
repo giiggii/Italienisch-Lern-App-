@@ -1,11 +1,10 @@
 import { STARTER, PERSONS, PRAISE, COMFORT, LEVELS, BADGES } from './data.js';
 import { state, save, replaceState, profile, newProfile, allUnits, unitById, dayKey, wordId, grade, stats, touchDay, liveStreak } from './store.js';
-import { buildSession, storyExercises, collectWords, checkTyped, similar, shuffle } from './exercises.js';
-import { aiReady, analysePhotos, moreExercises, explainMistake, toUnit, mergeMore, unitFromText } from './ai.js';
+import { buildSession, storyExercises, collectWords, checkTyped, similar, shuffle, pick } from './exercises.js';
+import { aiReady, aiMode, canSendPhotos, initAI, analysePhotos, moreExercises, explainMistake, toUnit, mergeMore, unitFromText, photoPrompt, morePrompt, copyText, parseJSON } from './ai.js';
 
 const app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
-const pick = a => a[Math.floor(Math.random() * a.length)];
 const AVATARS = ['🌻', '🍋', '🫒', '🍷', '⛵', '🎻', '🦉', '🐈', '🌷', '☕'];
 
 let view = { name: 'home' };
@@ -34,7 +33,8 @@ function speak(text, slow) {
   } catch (e) { /* Vorlesen ist optional */ }
 }
 
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+// In der eingebetteten Ansicht auf claude.ai ist das Mikrofon gesperrt, dort wird das Nachsprechen selbst bestätigt.
+const SR = window.claude ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
 let rec = null;
 
 let actx = null;
@@ -72,6 +72,26 @@ function busy(messages) {
   busyTimer = setInterval(() => { i = (i + 1) % messages.length; const m = document.getElementById('busy-msg'); if (m) m.textContent = messages[i]; }, 3500);
 }
 function unbusy() { clearInterval(busyTimer); document.getElementById('busy')?.remove(); }
+
+// Eigene Rückfrage, weil confirm() nicht in jeder Umgebung angezeigt wird.
+function confirmBox(msg, yes = 'Ja') {
+  return new Promise(res => {
+    const el = document.createElement('div');
+    el.id = 'confirm';
+    el.innerHTML = `<div class="busy-box" role="alertdialog" aria-modal="true"><p>${esc(msg)}</p><button class="btn primary" data-y>${esc(yes)}</button><button class="btn ghost" data-n>Abbrechen</button></div>`;
+    document.body.appendChild(el);
+    el.addEventListener('click', e => { const y = e.target.closest('[data-y]'), n = e.target.closest('[data-n]'); if (!y && !n) return; el.remove(); res(!!y); });
+  });
+}
+const weakOf = (u, p) => u.vocab.filter(v => { const s = p.items[wordId(v.it)]; return s && s.ko > s.ok; }).map(v => v.it).slice(0, 10);
+const aiStatus = () => ({ claude: '✓ Verbunden mit dem Claude-Konto. Es entstehen keine zusätzlichen Kosten.', key: '✓ Eigener API-Schlüssel ist eingerichtet.', none: 'Kein direkter KI-Zugang. Die App funktioniert trotzdem kostenlos über die Claude-App (siehe „Unterricht“).' }[aiMode()]);
+const pasteBlock = (kind, id, title) => `<section class="card accent"><h2>${title}</h2>
+  <ol class="steps"><li>Tippen Sie auf „Anleitung kopieren“.</li><li>Öffnen Sie die Claude-App${kind === 'photo' ? ', fügen Sie dort Ihre Fotos hinzu,' : ''} fügen Sie die Anleitung ein und senden Sie die Nachricht ab.</li><li>Kopieren Sie die Antwort von Claude vollständig und fügen Sie sie unten ein.</li></ol>
+  <button class="btn primary" data-act="copyPrompt" data-kind="${kind}" data-id="${id || ''}">📋 Anleitung kopieren</button>
+  <details id="promptdetails"><summary>Anleitung anzeigen</summary><textarea id="promptbox" readonly rows="6"></textarea></details>
+  <label for="pasted">Antwort von Claude</label>
+  <textarea id="pasted" rows="5" placeholder="Antwort hier einfügen" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+  <button class="btn primary" data-act="pasteAnswer" data-kind="${kind}" data-id="${id || ''}">${kind === 'photo' ? 'Lektion erstellen' : 'Aufgaben hinzufügen'}</button></section>`;
 
 // ---------- Bausteine ----------
 const sayBtn = (text, cls = '') => `<button class="say ${cls}" data-act="say" data-text="${esc(text)}" aria-label="Vorlesen">🔊</button>`;
@@ -161,18 +181,20 @@ const views = {
   },
 
   upload() {
-    const ready = aiReady();
+    const direct = canSendPhotos();
     return `<main class="page">
       <button class="back" data-act="go" data-to="units">‹ Zurück</button>
       <h1>Neue Unterlagen</h1>
       <p>Fotografieren Sie Arbeitsblätter, Grammatikübersichten oder Ihre Notizen aus der letzten Stunde. Achten Sie auf gutes Licht und darauf, dass das ganze Blatt zu sehen ist.</p>
-      ${ready ? '' : `<section class="card warn"><h2>KI-Zugang fehlt noch</h2><p>Damit die App Fotos lesen kann, muss einmalig ein Zugang eingerichtet werden. Bitten Sie dafür am besten Ihren Sohn oder Ihre Tochter um Hilfe.</p><button class="btn ghost" data-act="go" data-to="settings">Zu den Einstellungen</button></section>`}
+      ${direct ? `<p class="status ok">${aiStatus()}</p>
       <label class="btn primary huge filebtn">📷 Foto aufnehmen<input type="file" accept="image/*" capture="environment" data-in="photos"></label>
       <label class="btn ghost filebtn">🖼️ Aus meinen Fotos wählen<input type="file" accept="image/*" multiple data-in="photos"></label>
       ${photos.length ? `<div class="thumbs">${photos.map((d, i) => `<div class="thumb"><img src="${d}" alt="Foto ${i + 1}"><button data-act="rmPhoto" data-i="${i}" aria-label="Foto ${i + 1} entfernen">✕</button></div>`).join('')}</div>
         <label for="note">Worum ging es in der Stunde? (freiwillig)</label>
         <input id="note" type="text" maxlength="200" placeholder="z. B. Einkaufen auf dem Markt">
-        <button class="btn primary huge" data-act="analyse" ${ready ? '' : 'disabled'}>✨ Lektion daraus erstellen</button>` : ''}
+        <button class="btn primary huge" data-act="analyse">✨ Lektion daraus erstellen</button>` : ''}
+      <details><summary>Es klappt nicht? Der Weg über die Claude-App</summary>${pasteBlock('photo', '', 'Über die Claude-App')}</details>`
+      : pasteBlock('photo', '', 'So entsteht aus Ihren Fotos eine Lektion')}
       <details class="card"><summary>Wörter lieber selbst eintippen</summary>
         <label for="mtitle">Titel</label><input id="mtitle" type="text" maxlength="60" placeholder="z. B. Stunde vom Dienstag">
         <label for="mtext">Pro Zeile ein Wort: italienisch = deutsch</label>
@@ -180,6 +202,11 @@ const views = {
         <button class="btn ghost" data-act="manual">Lektion anlegen</button>
       </details>
     </main>${tabbar('units')}`;
+  },
+
+  pasteMore() {
+    const u = unitById(view.id);
+    return `<main class="page"><button class="back" data-act="openUnit" data-id="${u.id}">‹ Zurück</button><h1>Neue Aufgaben</h1><p>Zu „${esc(u.title)}“ entstehen neue, weiterführende Aufgaben, passend zu Ihrem Niveau.</p>${pasteBlock('more', u.id, 'Über die Claude-App')}</main>${tabbar('units')}`;
   },
 
   games(p) {
@@ -258,16 +285,16 @@ const views = {
         ${seg('level', LEVELS.map(l => [l.n, l.n]), Math.round(p.level))}
         <p class="muted">Aktuell Stufe ${levelName(p).n}: ${levelName(p).name}</p>
       </section>
-      <section class="card"><h2>KI-Zugang für Fotos</h2>
-        <p class="muted">Wird einmalig eingerichtet, am besten von einem Familienmitglied. Der Schlüssel bleibt nur auf diesem Gerät gespeichert und wird ausschließlich an die Claude-API gesendet.</p>
+      <section class="card"><h2>KI-Zugang</h2>
+        <p class="status ${aiReady() ? 'ok' : ''}">${aiStatus()}</p>
+        <details><summary>Für Fortgeschrittene: eigener API-Schlüssel (kostenpflichtig, nicht nötig)</summary>
         <label for="apikey">Claude-API-Schlüssel</label>
         <input id="apikey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-…" value="${esc(st.apiKey)}" data-in="apiKey">
         <label for="model">Modell</label>
-        <select id="model" data-in="model">${[['claude-opus-5-5', 'Claude Opus 5.5 (beste Qualität, empfohlen)'], ['claude-sonnet-5-5', 'Claude Sonnet 5.5 (günstiger)'], ['claude-haiku-5-5', 'Claude Haiku 5.5 (am günstigsten)']].map(([v, l]) => `<option value="${v}" ${st.model === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
-        <details><summary>Für Fortgeschrittene: eigener Proxy</summary><label for="proxy">Proxy-Adresse (ersetzt den Schlüssel)</label><input id="proxy" type="url" autocapitalize="off" placeholder="https://…" value="${esc(st.proxyUrl)}" data-in="proxyUrl"></details>
-        <p class="status ${aiReady() ? 'ok' : ''}">${aiReady() ? '✓ Zugang ist eingerichtet' : 'Noch nicht eingerichtet'}</p>
+        <select id="model" data-in="model">${[['claude-opus-5-5', 'Claude Opus 5.5 (beste Qualität)'], ['claude-sonnet-5-5', 'Claude Sonnet 5.5 (günstiger)'], ['claude-haiku-5-5', 'Claude Haiku 5.5 (am günstigsten)']].map(([v, l]) => `<option value="${v}" ${st.model === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <label for="proxy">Proxy-Adresse (ersetzt den Schlüssel)</label><input id="proxy" type="url" autocapitalize="off" placeholder="https://…" value="${esc(st.proxyUrl)}" data-in="proxyUrl"></details>
       </section>
-      <section class="card"><h2>Als App installieren</h2><p>In Safari unten auf das Teilen-Symbol tippen und „Zum Home-Bildschirm“ wählen. Danach lässt sich Parliamo! wie eine normale App öffnen.</p></section>
+      <section class="card"><h2>Schnell wiederfinden</h2><p>Speichern Sie diese Seite als Lesezeichen oder legen Sie sie über das Teilen-Symbol auf den Home-Bildschirm. Öffnen Sie sie immer auf demselben Weg, denn der Lernstand ist an diesen Ort gebunden.</p></section>
       <section class="card"><h2>Daten</h2>
         <p class="muted">Alle Lernstände liegen nur auf diesem Gerät. Eine Sicherung schützt vor Verlust und erlaubt den Umzug auf ein anderes Gerät.</p>
         <button class="btn ghost" data-act="export">Sicherung speichern</button>
@@ -509,11 +536,10 @@ async function analyse() {
 
 async function more(id) {
   const u = unitById(id), p = profile();
-  if (!aiReady()) { toast('Dafür wird der KI-Zugang benötigt (siehe „Mehr“).'); return; }
+  if (!aiReady()) { go('pasteMore', { id }); return; }
   busy(['Ich denke mir neue Aufgaben aus …', 'Ich suche eine neue Alltagssituation …', 'Ich schreibe eine neue Geschichte …', 'Gleich fertig …']);
   try {
-    const weak = u.vocab.filter(v => { const s = p.items[wordId(v.it)]; return s && s.ko > s.ok; }).map(v => v.it).slice(0, 10);
-    const r = mergeMore(u, await moreExercises(u, p.level, weak));
+    const r = mergeMore(u, await moreExercises(u, p.level, weakOf(u, p)));
     save(); render();
     toast(`Neu: ${r.exercises} Aufgaben${r.words ? ', ' + r.words + ' Wörter' : ''}${r.story ? ' und eine Geschichte' : ''}.`, 5000);
   } catch (e) { toast(e.message || 'Das hat leider nicht geklappt.', 6000); }
@@ -566,7 +592,7 @@ const actions = {
   more: el => more(el.dataset.id),
   toggleEdit: () => { view.edit = !view.edit; render(); },
   delWord: el => { const u = unitById(view.id); u.vocab.splice(+el.dataset.i, 1); save(); render(); },
-  delUnit: el => { if (confirm('Diese Lektion wirklich löschen?')) { state.units = state.units.filter(u => u.id !== el.dataset.id); save(); go('units'); } },
+  delUnit: async el => { if (await confirmBox('Diese Lektion wirklich löschen?', 'Löschen')) { state.units = state.units.filter(u => u.id !== el.dataset.id); save(); go('units'); } },
   rmPhoto: el => { photos.splice(+el.dataset.i, 1); render(); },
   analyse,
   manual: () => {
@@ -581,18 +607,46 @@ const actions = {
     if (k === 'auto') p.auto = v; else if (k === 'level') { p.level = v; p.auto = false; } else p.prefs[k] = v;
     save(); render();
   },
-  export: () => {
-    const blob = new Blob([JSON.stringify({ ...state, settings: { ...state.settings, apiKey: '' } })], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `parliamo-sicherung-${dayKey()}.json`; a.click();
-    toast('Sicherung gespeichert (ohne den KI-Schlüssel).');
+  export: async () => {
+    const json = JSON.stringify({ ...state, settings: { ...state.settings, apiKey: '' } }), name = `parliamo-sicherung-${dayKey()}.json`;
+    try {
+      const dl = await window.claude?.use?.('downloads');
+      if (dl) await dl.save({ filename: name, data: json });
+      else { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name; a.click(); }
+      toast('Sicherung gespeichert.');
+    } catch (e) { toast('Die Sicherung wurde nicht gespeichert.'); }
   },
-  resetProfile: () => {
-    if (!confirm('Wirklich alle Punkte und den Lernstand dieser Person löschen?')) return;
+  copyPrompt: async el => {
+    const p = profile(), u = el.dataset.id && unitById(el.dataset.id);
+    const text = copyText(el.dataset.kind === 'more' ? morePrompt(u, p.level, weakOf(u, p)) : photoPrompt('', p.level));
+    const box = document.getElementById('promptbox'); box.value = text;
+    try { await navigator.clipboard.writeText(text); toast('Anleitung kopiert. Jetzt in der Claude-App einfügen.', 5000); }
+    catch (e) { document.getElementById('promptdetails').open = true; box.focus(); box.select(); toast('Bitte den markierten Text von Hand kopieren.', 5000); }
+  },
+  pasteAnswer: el => {
+    const raw = document.getElementById('pasted').value;
+    if (!raw.trim()) { toast('Bitte zuerst die Antwort von Claude einfügen.'); return; }
+    try {
+      const data = parseJSON(raw);
+      if (data.error) throw new Error(String(data.error));
+      if (el.dataset.kind === 'more') {
+        const u = unitById(el.dataset.id), r = mergeMore(u, data);
+        if (!r.exercises && !r.words && !r.story) throw new Error('In der Antwort waren keine Aufgaben zu finden. Bitte die Antwort vollständig kopieren.');
+        save(); go('unit', { id: u.id }); toast(`Neu: ${r.exercises} Aufgaben${r.words ? ', ' + r.words + ' Wörter' : ''}${r.story ? ' und eine Geschichte' : ''}.`, 5000);
+      } else {
+        const unit = toUnit(data);
+        if (!unit.vocab.length && !unit.pool.length) throw new Error('In der Antwort war keine Lektion zu finden. Bitte die Antwort vollständig kopieren.');
+        state.units.unshift(unit); awardBadges(profile()); save(); go('unit', { id: unit.id }); toast('Die neue Lektion ist fertig. Buono studio!');
+      }
+    } catch (e) { toast(e.message.includes('KI') ? 'Die eingefügte Antwort war nicht lesbar. Bitte die Antwort von Claude vollständig kopieren.' : e.message, 6000); }
+  },
+  resetProfile: async () => {
+    if (!await confirmBox('Wirklich alle Punkte und den Lernstand dieser Person löschen?', 'Zurücksetzen')) return;
     const p = profile(), n = newProfile(p.name, p.avatar);
     Object.assign(p, n, { id: p.id }); save(); go('home');
   },
   // Lerneinheit
-  quit: () => { if (confirm('Lerneinheit beenden? Die bisherigen Antworten bleiben gespeichert.')) { window.speechSynthesis?.cancel?.(); S = null; go('home'); } },
+  quit: async () => { if (await confirmBox('Lerneinheit beenden? Die bisherigen Antworten bleiben gespeichert.', 'Beenden')) { window.speechSynthesis?.cancel?.(); S = null; go('home'); } },
   sel: el => { S.sel = +el.dataset.i; render(); },
   check, next,
   showDe: () => { S.showDe = true; render(); },
@@ -650,7 +704,7 @@ document.addEventListener('input', e => {
   }
   if (k === 'apiKey' || k === 'proxyUrl') {
     state.settings[k] = e.target.value.trim(); save();
-    const s = document.querySelector('.status'); if (s) { s.className = 'status ' + (aiReady() ? 'ok' : ''); s.textContent = aiReady() ? '✓ Zugang ist eingerichtet' : 'Noch nicht eingerichtet'; }
+    const s = document.querySelector('.status'); if (s) { s.className = 'status ' + (aiReady() ? 'ok' : ''); s.textContent = aiStatus(); }
   }
 });
 
@@ -662,7 +716,7 @@ document.addEventListener('change', async e => {
     try {
       const obj = JSON.parse(await e.target.files[0].text());
       if (!Array.isArray(obj.profiles)) throw new Error();
-      if (confirm('Die Sicherung ersetzt alle Daten auf diesem Gerät. Fortfahren?')) { replaceState({ ...obj, settings: { ...obj.settings, apiKey: state.settings.apiKey } }); go('profiles'); }
+      if (await confirmBox('Die Sicherung ersetzt alle Daten auf diesem Gerät. Fortfahren?', 'Ersetzen')) { replaceState({ ...obj, settings: { ...obj.settings, apiKey: state.settings.apiKey } }); go('profiles'); }
     } catch (err) { toast('Diese Datei ist keine gültige Sicherung.'); }
   }
 });
@@ -684,6 +738,7 @@ function render() {
   if (view.name === 'session') autoSpeak();
 }
 
-if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if (!window.claude && 'serviceWorker' in navigator && location.protocol === 'https:' && !document.currentScript) navigator.serviceWorker.register('sw.js').catch(() => {});
+initAI(() => { if (!S && view.name !== 'memory') render(); });
 navigator.storage?.persist?.().catch?.(() => {});
 render();

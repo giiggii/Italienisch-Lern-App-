@@ -3,7 +3,7 @@ import { VERBS, PERSONS } from './data.js';
 import { allUnits, wordId, norm, stripAcc } from './store.js';
 
 export const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const pick = a => a[Math.floor(Math.random() * a.length)];
+export const pick = a => a[Math.floor(Math.random() * a.length)];
 
 const ARTICLE = /^(il|lo|la|i|gli|le|un|uno|una)\s+|^(l'|un')\s*/i;
 export const bare = it => it.replace(ARTICLE, '').trim();

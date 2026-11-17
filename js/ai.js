@@ -5,7 +5,56 @@ import { LEVELS } from './data.js';
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
 
-export const aiReady = () => !!(state.settings.apiKey || state.settings.proxyUrl);
+// Weg 1 (kostenlos): Die Seite läuft als Artifact auf claude.ai und fragt Claude über das Konto der Person, die sie öffnet.
+// Weg 2: eigener API-Schlüssel oder Proxy. Weg 3: Anleitung kopieren und Antwort aus der Claude-App einfügen.
+let sampleFn = null, sampleImages = false;
+export const aiMode = () => (sampleFn ? 'claude' : (state.settings.apiKey || state.settings.proxyUrl) ? 'key' : 'none');
+export const aiReady = () => aiMode() !== 'none';
+export const canSendPhotos = () => (sampleFn ? sampleImages : aiReady());
+export async function initAI(onChange) {
+  try {
+    const fn = await window.claude?.use?.('sample');
+    if (!fn) return;
+    sampleFn = fn;
+    const lim = await fn.limits().catch(() => null);
+    sampleImages = !!lim?.images;
+    onChange();
+  } catch (e) { /* kein Claude-Zugang in dieser Ansicht */ }
+}
+
+const SAMPLE_ERRORS = {
+  not_granted: 'Die Nutzung von Claude wurde für diese Seite nicht erlaubt. Bitte die Seite neu laden und die Frage mit „Erlauben“ beantworten.',
+  sampling_disabled: 'Claude steht für dieses Konto hier nicht zur Verfügung.',
+  rate_limited: 'Das Nutzungslimit des Claude-Kontos ist im Moment erreicht. Bitte später noch einmal versuchen.',
+  session_expired: 'Bitte bei Claude neu anmelden und die Seite noch einmal öffnen.',
+  image_rejected: 'Eines der Fotos konnte nicht verarbeitet werden. Bitte ein anderes Foto versuchen.',
+  images_unavailable: 'In dieser Ansicht können keine Fotos an Claude gesendet werden.',
+  refused: 'Claude konnte diese Anfrage nicht bearbeiten. Bitte ein anderes Foto versuchen.',
+  prompt_too_large: 'Die Anfrage war zu groß. Bitte weniger auf einmal senden.',
+};
+
+function toBlob(dataUrl) {
+  const [head, b64] = dataUrl.split(','), bin = atob(b64), arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: (head.match(/data:(.*?);/) || [])[1] || 'image/jpeg' });
+}
+
+async function ask(text, { images = [], quick = false, effort = 'low', maxTokens = 16000 } = {}) {
+  if (sampleFn) {
+    try {
+      const opts = { cache: false, modelTier: quick ? 'quick' : 'default' };
+      if (images.length) opts.images = images.map(toBlob);
+      const r = await sampleFn(PERSONA + '\n\n' + text, opts);
+      if (r.truncated && !r.text.trim().endsWith('}')) throw { code: 'truncated' };
+      return r.text;
+    } catch (e) {
+      throw new Error(SAMPLE_ERRORS[e?.code] || (e?.code === 'truncated' ? 'Die Antwort war zu lang. Bitte weniger Fotos auf einmal senden.' : 'Claude ist gerade nicht erreichbar. Bitte später noch einmal versuchen.'));
+    }
+  }
+  const content = images.map(d => ({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: d.split(',')[1] } }));
+  content.push({ type: 'text', text });
+  return callClaude({ system: PERSONA, content, effort, maxTokens });
+}
 
 async function callClaude({ system, content, effort = 'low', maxTokens = 16000 }) {
   const { apiKey, proxyUrl, model } = state.settings;
@@ -55,7 +104,7 @@ async function callClaude({ system, content, effort = 'low', maxTokens = 16000 }
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
-function parseJSON(text) {
+export function parseJSON(text) {
   const a = text.indexOf('{'), b = text.lastIndexOf('}');
   if (a < 0 || b <= a) throw new Error('Die Antwort der KI war nicht lesbar. Bitte noch einmal versuchen.');
   try { return JSON.parse(text.slice(a, b + 1)); }
@@ -77,14 +126,9 @@ function levelText(level) {
   return `Stufe ${l.n} von 5: ${l.ai}`;
 }
 
-// Fotos (als data-URL) lesen und daraus eine vollständige Lektion bauen.
-export async function analysePhotos(images, note, level) {
-  const content = images.map(d => ({
-    type: 'image',
-    source: { type: 'base64', media_type: 'image/jpeg', data: d.split(',')[1] },
-  }));
-  content.push({
-    type: 'text', text: `Das sind Fotos der Unterlagen aus der letzten Italienischstunde (Arbeitsblätter, teils handschriftlich ausgefüllt, Grammatikübersichten, eigene Notizen, Tafelbilder).
+// Anleitung, mit der Claude aus Fotos eine vollständige Lektion baut.
+export function photoPrompt(note, level) {
+  return `Das sind Fotos der Unterlagen aus der letzten Italienischstunde (Arbeitsblätter, teils handschriftlich ausgefüllt, Grammatikübersichten, eigene Notizen, Tafelbilder).
 ${note ? 'Hinweis der Lernenden zur Stunde: ' + note + '\n' : ''}
 Aufgabe:
 1. Lies alle Fotos sorgfältig, auch die Handschrift. Erfasse, was in der Stunde gelernt wurde: Vokabeln, Wendungen, Grammatik, Verben, landeskundliche Inhalte. Korrigiere dabei stillschweigend Schreibfehler der Lernenden. Lasse aus, was du nicht sicher lesen kannst.
@@ -107,16 +151,21 @@ Gib genau dieses JSON zurück:
 }
 "conjugations" enthält nur Verben im Präsens, die in der Stunde vorkamen (höchstens 4). "vocab" enthält höchstens 30 Einträge. Wenn auf den Fotos nichts Italienisches erkennbar ist, gib {"error":"kurze deutsche Erklärung, was auf dem Foto fehlt"} zurück.
 
-${EXERCISE_SPEC}`,
-  });
-  const out = parseJSON(await callClaude({ system: PERSONA, content, effort: 'medium', maxTokens: 20000 }));
+${EXERCISE_SPEC}`;
+}
+
+export async function analysePhotos(images, note, level) {
+  const out = parseJSON(await ask(photoPrompt(note, level), { images, effort: 'medium', maxTokens: 20000 }));
   if (out.error) throw new Error(String(out.error));
   return out;
 }
 
+// Vollständiger Text zum Kopieren in die Claude-App (Weg 3).
+export const copyText = body => PERSONA + '\n\n' + body;
+
 // Neue, weiterführende Aufgaben zu einer bestehenden Lektion erzeugen (angepasst an Niveau und Schwächen).
-export async function moreExercises(unit, level, weakWords) {
-  const text = `Lektion: ${unit.title}
+export function morePrompt(unit, level, weakWords) {
+  return `Lektion: ${unit.title}
 Vokabeln: ${unit.vocab.map(v => `${v.it} = ${v.de}`).join('; ')}
 Grammatik: ${(unit.grammar || []).map(g => g.title).join('; ') || 'keine besondere'}
 Verben: ${(unit.verbs || []).map(v => v.inf).join(', ') || 'keine besonderen'}
@@ -136,8 +185,8 @@ Gib genau dieses JSON zurück:
 }
 
 ${EXERCISE_SPEC}`;
-  return parseJSON(await callClaude({ system: PERSONA, content: [{ type: 'text', text }], effort: 'low' }));
 }
+export const moreExercises = async (unit, level, weakWords) => parseJSON(await ask(morePrompt(unit, level, weakWords)));
 
 // Kurze, persönliche Erklärung zu einem Fehler.
 export async function explainMistake(task, given, correct) {
@@ -145,7 +194,7 @@ export async function explainMistake(task, given, correct) {
 Antwort der Lernenden: ${given}
 Richtige Antwort: ${correct}
 Erkläre in höchstens 3 kurzen, freundlichen deutschen Sätzen, warum die richtige Antwort stimmt, und gib eine kleine Merkhilfe. Antworte als JSON: {"text":"..."}`;
-  const out = parseJSON(await callClaude({ system: PERSONA, content: [{ type: 'text', text }], effort: 'low', maxTokens: 2000 }));
+  const out = parseJSON(await ask(text, { quick: true, maxTokens: 2000 }));
   return String(out.text || '');
 }
 
