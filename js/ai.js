@@ -1,6 +1,6 @@
 // Anbindung an die Claude-API: Fotos der Unterrichtsunterlagen lesen und neue Übungen erzeugen.
 // Der Schlüssel liegt nur auf dem Gerät (Einstellungen) oder alternativ hinter einem eigenen Proxy.
-import { state } from './store.js';
+import { state, save } from './store.js';
 import { LEVELS } from './data.js';
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
@@ -51,9 +51,57 @@ async function ask(text, { images = [], quick = false, effort = 'low', maxTokens
       throw new Error(SAMPLE_ERRORS[e?.code] || (e?.code === 'truncated' ? 'Die Antwort war zu lang. Bitte weniger Fotos auf einmal senden.' : 'Claude ist gerade nicht erreichbar. Bitte später noch einmal versuchen.'));
     }
   }
+  if (provider() === 'gemini') return callGemini(text, images, maxTokens);
   const content = images.map(d => ({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: d.split(',')[1] } }));
   content.push({ type: 'text', text });
   return callClaude({ system: PERSONA, content, effort, maxTokens });
+}
+
+// Schlüssel von Anthropic beginnen mit "sk-ant-". Alles andere wird als Google-Gemini-Schlüssel behandelt.
+export const provider = () => (state.settings.proxyUrl || state.settings.apiKey.startsWith('sk-ant') ? 'claude' : 'gemini');
+export const testAI = async () => { parseJSON(await ask('Antworte nur mit {"ok":true}', { quick: true, maxTokens: 500 })); };
+
+const GEMINI = 'https://generativelanguage.googleapis.com/v1beta';
+
+// Sucht das aktuelle Flash-Modell heraus, damit die App auch nach Modellwechseln bei Google weiter funktioniert.
+async function geminiModel(key) {
+  if (state.settings.gemModel) return state.settings.gemModel;
+  let model = 'gemini-flash-latest';
+  try {
+    const res = await fetch(`${GEMINI}/models?pageSize=200`, { headers: { 'x-goog-api-key': key } });
+    if (res.status === 400 || res.status === 403) throw new Error('key');
+    const names = ((await res.json()).models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map(m => m.name.replace('models/', '')).filter(n => /^gemini-\d+(\.\d+)?-flash$/.test(n))
+      .sort((a, b) => parseFloat(b.split('-')[1]) - parseFloat(a.split('-')[1]));
+    if (names.length) model = names[0];
+  } catch (e) { if (e.message === 'key') throw new Error('Der KI-Schlüssel wurde nicht akzeptiert. Bitte in den Einstellungen prüfen.'); }
+  state.settings.gemModel = model; save();
+  return model;
+}
+
+async function callGemini(text, images, maxTokens, retried) {
+  const key = state.settings.apiKey, model = await geminiModel(key);
+  const body = {
+    systemInstruction: { parts: [{ text: PERSONA }] },
+    contents: [{ role: 'user', parts: [...images.map(d => ({ inlineData: { mimeType: 'image/jpeg', data: d.split(',')[1] } })), { text }] }],
+    generationConfig: { responseMimeType: 'application/json', maxOutputTokens: maxTokens },
+  };
+  let res;
+  try { res = await fetch(`${GEMINI}/models/${model}:generateContent`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body) }); }
+  catch (e) { throw new Error('Keine Verbindung zum Internet. Bitte WLAN oder mobile Daten prüfen und noch einmal versuchen.'); }
+  if (!res.ok) {
+    let msg = ''; try { msg = (await res.json())?.error?.message || ''; } catch (e) { /* kein JSON */ }
+    if (res.status === 404 && !retried) { state.settings.gemModel = ''; save(); return callGemini(text, images, maxTokens, true); }
+    if (res.status === 403 || /API key/i.test(msg)) throw new Error('Der KI-Schlüssel wurde nicht akzeptiert. Bitte in den Einstellungen prüfen.');
+    if (res.status === 429) throw new Error('Das kostenlose Kontingent ist für den Moment aufgebraucht. Bitte später oder morgen noch einmal versuchen.');
+    if (res.status >= 500) throw new Error('Der KI-Dienst ist gerade nicht erreichbar. Bitte später noch einmal versuchen.');
+    throw new Error('Die Anfrage wurde abgelehnt. ' + msg.slice(0, 200));
+  }
+  const data = await res.json(), cand = (data.candidates || [])[0];
+  const out = (cand?.content?.parts || []).filter(p => !p.thought).map(p => p.text || '').join('');
+  if (!out.trim()) throw new Error('Die KI konnte diese Anfrage nicht bearbeiten. Bitte ein anderes Foto versuchen.');
+  if (cand.finishReason === 'MAX_TOKENS' && !out.trim().endsWith('}')) throw new Error('Die Antwort der KI war zu lang. Bitte weniger Fotos auf einmal senden.');
+  return out;
 }
 
 async function callClaude({ system, content, effort = 'low', maxTokens = 16000 }) {

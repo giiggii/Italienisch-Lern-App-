@@ -3,7 +3,6 @@
   "short_name": "Parliamo!",
   "description": "Italienisch lernen mit den eigenen Unterlagen aus dem Unterricht.",
   "lang": "de",
-  "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",

@@ -1,5 +1,5 @@
 // Service Worker: macht die App offline nutzbar. Zuerst wird das Netz versucht, damit Aktualisierungen sofort ankommen.
-const CACHE = 'parliamo-v1';
+const CACHE = 'parliamo-v2';
 const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/data.js', 'js/store.js', 'js/ai.js', 'js/exercises.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-180.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });

@@ -1,7 +1,7 @@
 import { STARTER, PERSONS, PRAISE, COMFORT, LEVELS, BADGES } from './data.js';
 import { state, save, replaceState, profile, newProfile, allUnits, unitById, dayKey, wordId, grade, stats, touchDay, liveStreak } from './store.js';
 import { buildSession, storyExercises, collectWords, checkTyped, similar, shuffle, pick } from './exercises.js';
-import { aiReady, aiMode, canSendPhotos, initAI, analysePhotos, moreExercises, explainMistake, toUnit, mergeMore, unitFromText, photoPrompt, morePrompt, copyText, parseJSON } from './ai.js';
+import { aiReady, aiMode, canSendPhotos, initAI, provider, testAI, analysePhotos, moreExercises, explainMistake, toUnit, mergeMore, unitFromText, photoPrompt, morePrompt, copyText, parseJSON } from './ai.js';
 
 const app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
@@ -84,7 +84,7 @@ function confirmBox(msg, yes = 'Ja') {
   });
 }
 const weakOf = (u, p) => u.vocab.filter(v => { const s = p.items[wordId(v.it)]; return s && s.ko > s.ok; }).map(v => v.it).slice(0, 10);
-const aiStatus = () => ({ claude: '✓ Verbunden mit dem Claude-Konto. Es entstehen keine zusätzlichen Kosten.', key: '✓ Eigener API-Schlüssel ist eingerichtet.', none: 'Kein direkter KI-Zugang. Die App funktioniert trotzdem kostenlos über die Claude-App (siehe „Unterricht“).' }[aiMode()]);
+const aiStatus = () => ({ claude: '✓ Verbunden mit dem Claude-Konto. Es entstehen keine zusätzlichen Kosten.', key: '✓ KI-Zugang ist eingerichtet (' + (provider() === 'gemini' ? 'Google Gemini' : 'Claude') + ').', none: 'Noch kein KI-Zugang eingerichtet. Ohne ihn können keine Fotos ausgewertet werden.' }[aiMode()]);
 const pasteBlock = (kind, id, title) => `<section class="card accent"><h2>${title}</h2>
   <ol class="steps"><li>Tippen Sie auf „Anleitung kopieren“.</li><li>Öffnen Sie die Claude-App${kind === 'photo' ? ', fügen Sie dort Ihre Fotos hinzu,' : ''} fügen Sie die Anleitung ein und senden Sie die Nachricht ab.</li><li>Kopieren Sie die Antwort von Claude vollständig und fügen Sie sie unten ein.</li></ol>
   <button class="btn primary" data-act="copyPrompt" data-kind="${kind}" data-id="${id || ''}">📋 Anleitung kopieren</button>
@@ -92,6 +92,12 @@ const pasteBlock = (kind, id, title) => `<section class="card accent"><h2>${titl
   <label for="pasted">Antwort von Claude</label>
   <textarea id="pasted" rows="5" placeholder="Antwort hier einfügen" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
   <button class="btn primary" data-act="pasteAnswer" data-kind="${kind}" data-id="${id || ''}">${kind === 'photo' ? 'Lektion erstellen' : 'Aufgaben hinzufügen'}</button></section>`;
+
+// Text über das Teilen-Menü des Handys weitergeben, sonst in die Zwischenablage kopieren.
+async function sendText(text, copiedMsg) {
+  try { if (navigator.share && !window.claude) { await navigator.share({ text }); return; } } catch (e) { if (e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(text); toast(copiedMsg, 5000); } catch (e) { toast('Das Kopieren hat nicht geklappt.'); }
+}
 
 // ---------- Bausteine ----------
 const sayBtn = (text, cls = '') => `<button class="say ${cls}" data-act="say" data-text="${esc(text)}" aria-label="Vorlesen">🔊</button>`;
@@ -176,7 +182,7 @@ const views = {
       ${u.culture ? `<section class="card accent"><p class="label">Italien entdecken</p><h2>${esc(u.culture.title)}</h2><div class="row"><p class="it grow">${esc(u.culture.it)}</p>${sayBtn(u.culture.it)}</div><details><summary>Übersetzung zeigen</summary><p>${esc(u.culture.de)}</p></details></section>` : ''}
       <h2>Wörter (${u.vocab.length})</h2>
       <div class="words">${u.vocab.map((v, i) => `<div class="word"><button class="grow wbtn" data-act="say" data-text="${esc(v.it)}"><span class="wemoji">${esc(v.emoji || '🔊')}</span><span><b>${esc(v.it)}</b>${v.isNew ? ' <em class="tag">neu</em>' : ''}<small>${esc(v.de)}</small></span></button>${dots(v)}${view.edit ? `<button class="del" data-act="delWord" data-i="${i}" aria-label="Wort entfernen">✕</button>` : ''}</div>`).join('')}</div>
-      ${u.builtin ? '' : `<div class="stack"><button class="btn ghost" data-act="toggleEdit">${view.edit ? 'Fertig' : '✏️ Falsch erkannte Wörter entfernen'}</button><button class="btn danger" data-act="delUnit" data-id="${u.id}">Lektion löschen</button></div>`}
+      ${u.builtin ? '' : `<div class="stack"><button class="btn ghost" data-act="shareUnit" data-id="${u.id}">📤 Lektion an ein anderes Handy senden</button><button class="btn ghost" data-act="toggleEdit">${view.edit ? 'Fertig' : '✏️ Falsch erkannte Wörter entfernen'}</button><button class="btn danger" data-act="delUnit" data-id="${u.id}">Lektion löschen</button></div>`}
     </main>${tabbar('units')}`;
   },
 
@@ -193,8 +199,13 @@ const views = {
         <label for="note">Worum ging es in der Stunde? (freiwillig)</label>
         <input id="note" type="text" maxlength="200" placeholder="z. B. Einkaufen auf dem Markt">
         <button class="btn primary huge" data-act="analyse">✨ Lektion daraus erstellen</button>` : ''}
-      <details><summary>Es klappt nicht? Der Weg über die Claude-App</summary>${pasteBlock('photo', '', 'Über die Claude-App')}</details>`
-      : pasteBlock('photo', '', 'So entsteht aus Ihren Fotos eine Lektion')}
+      ` : `<section class="card warn"><h2>KI-Zugang fehlt noch</h2><p>Damit die App Fotos lesen kann, muss einmalig ein Zugang eingerichtet werden. Bitten Sie dafür ein Familienmitglied um Hilfe.</p><button class="btn ghost" data-act="go" data-to="settings">Zu den Einstellungen</button></section>`}
+      <details class="card"><summary>Lektion von einem anderen Handy übernehmen</summary>
+        <label for="pasted">Erhaltene Nachricht hier einfügen</label>
+        <textarea id="pasted" rows="4" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+        <button class="btn ghost" data-act="pasteAnswer" data-kind="photo">Übernehmen</button>
+      </details>
+      <details class="card"><summary>Ohne KI-Zugang: Umweg über eine KI-App</summary>${pasteBlock('photo', '', 'Anleitung kopieren und Antwort einfügen').replace('id="pasted"', 'id="pasted2"').replace('for="pasted"', 'for="pasted2"').replace('data-act="pasteAnswer"', 'data-act="pasteAnswer" data-box="pasted2"')}</details>
       <details class="card"><summary>Wörter lieber selbst eintippen</summary>
         <label for="mtitle">Titel</label><input id="mtitle" type="text" maxlength="60" placeholder="z. B. Stunde vom Dienstag">
         <label for="mtext">Pro Zeile ein Wort: italienisch = deutsch</label>
@@ -285,16 +296,19 @@ const views = {
         ${seg('level', LEVELS.map(l => [l.n, l.n]), Math.round(p.level))}
         <p class="muted">Aktuell Stufe ${levelName(p).n}: ${levelName(p).name}</p>
       </section>
-      <section class="card"><h2>KI-Zugang</h2>
+      <section class="card"><h2>KI-Zugang für Fotos</h2>
         <p class="status ${aiReady() ? 'ok' : ''}">${aiStatus()}</p>
-        <details><summary>Für Fortgeschrittene: eigener API-Schlüssel (kostenpflichtig, nicht nötig)</summary>
-        <label for="apikey">Claude-API-Schlüssel</label>
-        <input id="apikey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-…" value="${esc(st.apiKey)}" data-in="apiKey">
-        <label for="model">Modell</label>
+        ${aiMode() === 'claude' ? '' : `<p class="muted">Wird einmalig von einem Familienmitglied eingerichtet. Danach ist keine Anmeldung nötig. Ein kostenloser Schlüssel von Google lässt sich unter aistudio.google.com/apikey erzeugen.</p>
+        <label for="apikey">KI-Schlüssel (Google Gemini oder Claude)</label>
+        <input id="apikey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Schlüssel hier einfügen" value="${esc(st.apiKey)}" data-in="apiKey">
+        <button class="btn ghost" data-act="testKey">Zugang testen</button>
+        <button class="btn ghost" data-act="setupLink">🔗 Einrichtungslink für ein weiteres Handy</button>
+        <details><summary>Weitere Optionen</summary>
+        <label for="model">Modell (nur bei Claude-Schlüssel)</label>
         <select id="model" data-in="model">${[['claude-opus-5-5', 'Claude Opus 5.5 (beste Qualität)'], ['claude-sonnet-5-5', 'Claude Sonnet 5.5 (günstiger)'], ['claude-haiku-5-5', 'Claude Haiku 5.5 (am günstigsten)']].map(([v, l]) => `<option value="${v}" ${st.model === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
-        <label for="proxy">Proxy-Adresse (ersetzt den Schlüssel)</label><input id="proxy" type="url" autocapitalize="off" placeholder="https://…" value="${esc(st.proxyUrl)}" data-in="proxyUrl"></details>
+        <label for="proxy">Proxy-Adresse (ersetzt den Schlüssel)</label><input id="proxy" type="url" autocapitalize="off" placeholder="https://…" value="${esc(st.proxyUrl)}" data-in="proxyUrl"></details>`}
       </section>
-      <section class="card"><h2>Schnell wiederfinden</h2><p>Speichern Sie diese Seite als Lesezeichen oder legen Sie sie über das Teilen-Symbol auf den Home-Bildschirm. Öffnen Sie sie immer auf demselben Weg, denn der Lernstand ist an diesen Ort gebunden.</p></section>
+      <section class="card"><h2>Als App auf dem iPhone</h2><p>In Safari unten auf das Teilen-Symbol tippen und „Zum Home-Bildschirm“ wählen. Danach öffnet sich Parliamo! wie eine normale App. Bitte immer über dieses Symbol öffnen, denn dort ist der Lernstand gespeichert.</p></section>
       <section class="card"><h2>Daten</h2>
         <p class="muted">Alle Lernstände liegen nur auf diesem Gerät. Eine Sicherung schützt vor Verlust und erlaubt den Umzug auf ein anderes Gerät.</p>
         <button class="btn ghost" data-act="export">Sicherung speichern</button>
@@ -616,6 +630,20 @@ const actions = {
       toast('Sicherung gespeichert.');
     } catch (e) { toast('Die Sicherung wurde nicht gespeichert.'); }
   },
+  testKey: async el => {
+    if (!aiReady()) { toast('Bitte zuerst einen Schlüssel eintragen.'); return; }
+    el.disabled = true; el.textContent = 'Einen Moment …';
+    try { await testAI(); toast('✓ Der KI-Zugang funktioniert.'); } catch (e) { toast(e.message, 6000); }
+    el.disabled = false; el.textContent = 'Zugang testen';
+  },
+  setupLink: () => {
+    if (!state.settings.apiKey) { toast('Bitte zuerst einen Schlüssel eintragen.'); return; }
+    sendText(location.href.split('#')[0] + '#k=' + encodeURIComponent(state.settings.apiKey), 'Einrichtungslink kopiert. Auf dem anderen Handy in Safari öffnen.');
+  },
+  shareUnit: el => {
+    const { builtin, ...u } = unitById(el.dataset.id);
+    sendText('PARLIAMO1:' + btoa(unescape(encodeURIComponent(JSON.stringify(u)))), 'Lektion kopiert. Jetzt als Nachricht an das andere Handy senden.');
+  },
   copyPrompt: async el => {
     const p = profile(), u = el.dataset.id && unitById(el.dataset.id);
     const text = copyText(el.dataset.kind === 'more' ? morePrompt(u, p.level, weakOf(u, p)) : photoPrompt('', p.level));
@@ -624,9 +652,16 @@ const actions = {
     catch (e) { document.getElementById('promptdetails').open = true; box.focus(); box.select(); toast('Bitte den markierten Text von Hand kopieren.', 5000); }
   },
   pasteAnswer: el => {
-    const raw = document.getElementById('pasted').value;
-    if (!raw.trim()) { toast('Bitte zuerst die Antwort von Claude einfügen.'); return; }
+    const raw = document.getElementById(el.dataset.box || 'pasted').value;
+    if (!raw.trim()) { toast('Bitte zuerst den Text einfügen.'); return; }
     try {
+      const code = raw.match(/PARLIAMO1:([A-Za-z0-9+/=]+)/);
+      if (code) {
+        const u = JSON.parse(decodeURIComponent(escape(atob(code[1]))));
+        if (!Array.isArray(u.vocab) || typeof u.title !== 'string') throw new Error('Dieser Text enthält keine gültige Lektion.');
+        state.units = state.units.filter(x => x.id !== u.id); state.units.unshift({ pool: [], grammar: [], ...u });
+        awardBadges(profile()); save(); go('unit', { id: u.id }); toast('Die Lektion wurde übernommen.'); return;
+      }
       const data = parseJSON(raw);
       if (data.error) throw new Error(String(data.error));
       if (el.dataset.kind === 'more') {
@@ -703,7 +738,7 @@ document.addEventListener('input', e => {
     const g = document.querySelector('.gap'); if (g) g.textContent = S.text || ' ';
   }
   if (k === 'apiKey' || k === 'proxyUrl') {
-    state.settings[k] = e.target.value.trim(); save();
+    state.settings[k] = e.target.value.trim(); state.settings.gemModel = ''; save();
     const s = document.querySelector('.status'); if (s) { s.className = 'status ' + (aiReady() ? 'ok' : ''); s.textContent = aiStatus(); }
   }
 });
@@ -739,6 +774,9 @@ function render() {
 }
 
 if (!window.claude && 'serviceWorker' in navigator && location.protocol === 'https:' && !document.currentScript) navigator.serviceWorker.register('sw.js').catch(() => {});
+// Einrichtungslink: übernimmt den KI-Schlüssel aus der Adresse, damit auf dem Handy nichts getippt werden muss.
+const setup = location.hash.match(/^#k=(.+)$/);
+if (setup) { try { state.settings.apiKey = decodeURIComponent(setup[1]); state.settings.gemModel = ''; save(); setTimeout(() => toast('✓ Der KI-Zugang ist eingerichtet.', 5000), 400); } catch (e) { /* ungültiger Link */ } }
 initAI(() => { if (!S && view.name !== 'memory') render(); });
 navigator.storage?.persist?.().catch?.(() => {});
 render();

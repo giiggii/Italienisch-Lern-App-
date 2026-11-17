@@ -5,7 +5,7 @@ const KEY = 'parla.v1';
 
 const defaults = () => ({
   v: 1, profiles: [], current: null, units: [],
-  settings: { apiKey: '', model: 'claude-opus-5-5', proxyUrl: '' },
+  settings: { apiKey: '', model: 'claude-opus-5-5', proxyUrl: '', gemModel: '' },
 });
 
 export const newProfile = (name, avatar) => ({
